@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+<title>Nano Disperser — 초고압 분산기 키오스크 | ㈜일신오토클레이브</title>
+<!-- Pretendard Variable (온라인 CDN) -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!-- QRCode.js (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+/* ===== RESET & ROOT ===== */
+*, *::before, *::after {
+margin: 0; padding: 0; box-sizing: border-box;
+-webkit-tap-highlight-color: transparent;
+user-select: none;
+word-break: keep-all;
+}
+:root {
+--kiosk-h: 1080px; /* 16:9 → 1080, 16:10(갤럭시탭) → 1200 : fitKioskToScreen()에서 자동 설정 */
+--bg-0:   #02060E;
+--bg-1:   #061127;
+--panel:  #0A1832;
+--card:   #0F2242;
+--card2:  #15305A;
+--cyan:   #3FD8FF;
+--cyan-b: #8DEBFF;
+--cyan-d: #1A86C9;
+--amber:  #FFB547;
+--violet: #9B87FF;
+--red:    #FF6B6B;
+--white:  #FFFFFF;
+--white-dim:   rgba(255,255,255,0.88);
+--white-muted: rgba(255,255,255,0.62);
+--border:        rgba(63,216,255,0.18);
+--border-bright: rgba(63,216,255,0.5);
+--font-main: "Pretendard Variable", "Pretendard", "Malgun Gothic", -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+}
+html, body {
+width: 100vw; height: 100vh; overflow: hidden;
+background: var(--bg-0); color: var(--white);
+font-family: var(--font-main);
+display: flex; align-items: center; justify-content: center;
+}
+button { font-family: inherit; }
+.nw { white-space: nowrap; }
+#kiosk-scaler {
+width: 1920px; height: var(--kiosk-h);
+position: relative; flex-shrink: 0;
+transform-origin: center center; overflow: hidden;
+}
+#kiosk-app { display: flex; width: 1920px; height: var(--kiosk-h); position: relative; }
+/* ===== SIDEBAR ===== */
+#sidebar {
+width: 260px; height: var(--kiosk-h); flex-shrink: 0;
+background: linear-gradient(180deg, var(--bg-1) 0%, #020812 100%);
+border-right: 1.5px solid var(--border);
+display: flex; flex-direction: column; position: relative; z-index: 10;
+}
+.sidebar-logo-area {
+height: 96px; padding: 0 26px;
+display: flex; align-items: center;
+border-bottom: 1.5px solid var(--border);
+}
+.sidebar-logo-area img { width: 200px; height: auto; display: block; }
+.sidebar-product {
+padding: 22px 26px 8px;
+}
+.sidebar-product .wip-word {
+font-size: 52px; font-weight: 900; letter-spacing: 2px; line-height: 1;
+background: linear-gradient(120deg, var(--cyan-b), var(--cyan) 50%, var(--violet));
+-webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.sidebar-product .wip-full {
+margin-top: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.6px; color: var(--white-muted);
+}
+.sidebar-nav { flex: 1; padding: 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+.nav-btn {
+width: 100%; height: 84px; display: flex; align-items: center; gap: 16px; padding: 0 18px;
+background: rgba(255,255,255,0.02); border: 1.5px solid transparent; border-radius: 18px;
+color: var(--white-muted); cursor: pointer; text-align: left;
+transition: all .25s cubic-bezier(.2,.8,.2,1);
+}
+.nav-btn .nav-ico {
+width: 46px; height: 46px; border-radius: 14px; flex-shrink: 0;
+display: flex; align-items: center; justify-content: center;
+background: rgba(63,216,255,0.08); border: 1px solid var(--border);
+}
+.nav-btn .nav-ico svg { width: 26px; height: 26px; stroke: var(--cyan-b); }
+.nav-text { display: flex; flex-direction: column; gap: 2px; }
+.nav-title { font-size: 23px; font-weight: 800; color: inherit; }
+.nav-sub { font-size: 12px; font-weight: 700; letter-spacing: 1.4px; opacity: .6; }
+.nav-btn:active { transform: scale(0.97); }
+.nav-btn.active {
+background: linear-gradient(120deg, rgba(63,216,255,0.22), rgba(155,135,255,0.12));
+border-color: var(--border-bright); color: var(--white);
+box-shadow: 0 0 28px rgba(63,216,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.nav-btn.active .nav-ico { background: var(--cyan); border-color: var(--cyan); }
+.nav-btn.active .nav-ico svg { stroke: #021022; }
+.sidebar-footer {
+padding: 18px 26px; border-top: 1.5px solid var(--border);
+display: flex; align-items: center; gap: 10px;
+font-size: 13px; font-weight: 700; letter-spacing: 1.4px; color: var(--white-muted);
+}
+.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); animation: blink 2s infinite; }
+@keyframes blink { 50% { opacity: .35; } }
+/* ===== MAIN ===== */
+#main-content { flex: 1; height: var(--kiosk-h); display: flex; flex-direction: column; position: relative; overflow: hidden;
+background: radial-gradient(1200px 700px at 80% 0%, rgba(26,134,201,0.18), transparent 60%), var(--bg-0); }
+.top-bar {
+height: 96px; flex-shrink: 0; padding: 0 40px;
+display: flex; align-items: center; justify-content: space-between;
+border-bottom: 1.5px solid var(--border);
+background: rgba(4,12,26,0.85); backdrop-filter: blur(10px); position: relative; z-index: 5;
+}
+.top-bar-left { display: flex; align-items: center; gap: 18px; }
+.top-bar-brand-tag {
+font-size: 14px; font-weight: 800; letter-spacing: 2px; color: var(--cyan);
+padding: 7px 14px; border: 1.5px solid var(--border-bright); border-radius: 30px;
+}
+.top-bar-title { font-size: 32px; font-weight: 800; }
+.top-bar-right { display: flex; align-items: center; gap: 22px; }
+.top-clock { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--white-dim); letter-spacing: 1px; }
+.lang-switcher { display: flex; background: rgba(255,255,255,0.05); border: 1.5px solid var(--border); border-radius: 30px; padding: 4px; }
+.lang-btn { width: 74px; height: 48px; border: none; border-radius: 26px; background: transparent; color: var(--white-muted); font-size: 19px; font-weight: 800; cursor: pointer; }
+.lang-btn.active { background: var(--cyan); color: #021022; }
+.panels-container { flex: 1; position: relative; overflow: hidden; }
+.panel { position: absolute; inset: 0; padding: 30px 40px 34px; display: none; flex-direction: column; }
+.panel.active { display: flex; animation: panelIn .45s cubic-bezier(.2,.8,.2,1); }
+@keyframes panelIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+/* ===== COMMON CARDS / SEGMENTS ===== */
+.glass {
+background: linear-gradient(160deg, rgba(21,48,90,0.75), rgba(10,24,50,0.85));
+border: 1.5px solid var(--border); border-radius: 26px;
+}
+.segment-bar { display: flex; gap: 14px; margin-bottom: 24px; flex-shrink: 0; }
+.segment-btn {
+flex: 1; height: 74px; border-radius: 20px; border: 1.5px solid var(--border);
+background: rgba(255,255,255,0.03); color: var(--white-muted);
+font-size: 24px; font-weight: 800; cursor: pointer; transition: all .2s;
+}
+.segment-btn.active { background: linear-gradient(120deg, var(--cyan), #5FB7FF); color: #021022; border-color: var(--cyan); box-shadow: 0 6px 26px rgba(63,216,255,0.3); }
+.subview { display: none; flex: 1; min-height: 0; }
+.subview.active { display: flex; animation: panelIn .35s ease; }
+.hl-cyan { color: var(--cyan); }
+.hl-amber { color: var(--amber); }
+.concept-note { font-size: 16px; color: var(--white-muted); font-weight: 600; }
+/* ===== HOME ===== */
+#panel-home { padding: 0; }
+#homeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.home-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(2,6,14,0.94) 0%, rgba(2,6,14,0.72) 48%, rgba(2,6,14,0.25) 100%); }
+.home-stage { position: relative; z-index: 2; height: 100%; display: grid; grid-template-columns: 1fr 560px; gap: 30px; padding: 54px 56px 46px; }
+.home-left { display: flex; flex-direction: column; min-width: 0; }
+.home-tag-pill {
+align-self: flex-start; display: inline-flex; align-items: center; gap: 10px;
+padding: 10px 22px; border-radius: 40px; border: 1.5px solid var(--border-bright);
+background: rgba(63,216,255,0.1); color: var(--cyan-b); font-size: 21px; font-weight: 800;
+}
+.home-tag-pill span { color: var(--cyan); animation: blink 1.6s infinite; }
+.home-hero-title { margin-top: 26px; font-size: 84px; line-height: 1.12; font-weight: 900; letter-spacing: -2px; }
+.home-hero-desc { margin-top: 24px; font-size: 27px; line-height: 1.55; color: var(--white-dim); max-width: 960px; font-weight: 500; }
+.home-hero-desc strong { color: var(--cyan-b); font-weight: 800; }
+.home-metrics-grid { margin-top: 34px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; max-width: 1040px; }
+.metric-card {
+padding: 22px 22px 20px; border-radius: 22px;
+background: rgba(10,24,50,0.78); border: 1.5px solid var(--border); backdrop-filter: blur(6px);
+}
+.metric-card .val { font-size: 40px; font-weight: 900; color: var(--white); letter-spacing: -0.5px; white-space: nowrap; }
+.metric-card .val small { font-size: 20px; font-weight: 800; color: var(--cyan); margin-left: 4px; }
+.metric-card .lbl { margin-top: 8px; font-size: 19px; color: var(--white-muted); font-weight: 700; line-height: 1.35; }
+.home-bottom-row { margin-top: auto; display: flex; align-items: center; gap: 18px; }
+.btn-primary, .btn-secondary {
+height: 86px; padding: 0 38px; border-radius: 24px; font-size: 27px; font-weight: 900; cursor: pointer; border: none;
+transition: transform .15s;
+}
+.btn-primary { background: linear-gradient(120deg, var(--cyan), #63A8FF); color: #021022; box-shadow: 0 10px 36px rgba(63,216,255,0.35); }
+.btn-secondary { background: rgba(255,255,255,0.06); color: var(--white); border: 1.5px solid var(--border-bright); }
+.btn-primary:active, .btn-secondary:active { transform: scale(0.97); }
+.home-cred { margin-top: 26px; display: flex; flex-wrap: wrap; gap: 10px; }
+.cred-chip { padding: 9px 18px; border-radius: 30px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 18px; font-weight: 700; color: var(--white-dim); }
+.cred-chip b { color: var(--amber); }
+.home-right { display: flex; align-items: center; justify-content: center; }
+.home-right svg { width: 100%; height: auto; max-height: 100%; }
+/* SVG animation helpers */
+@keyframes arrowIn { 0%,100% { transform: translate(0,0); opacity: .45; } 50% { transform: translate(var(--dx), var(--dy)); opacity: 1; } }
+.arr { animation: arrowIn 1.8s ease-in-out infinite; transform-box: fill-box; }
+@keyframes waveMove { from { transform: translateX(0); } to { transform: translateX(-120px); } }
+.wave { animation: waveMove 3.2s linear infinite; }
+@keyframes squeeze { 0%,100% { transform: scale(1,1); } 50% { transform: scale(0.94,0.9); } }
+.squeeze { animation: squeeze 3.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes heat { 0%,100% { opacity: .35; } 50% { opacity: .85; } }
+.heat { animation: heat 2.4s ease-in-out infinite; }
+@keyframes platenTop { 0%,100% { transform: translateY(0); } 50% { transform: translateY(22px); } }
+@keyframes platenBot { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
+.platen-top { animation: platenTop 3.6s ease-in-out infinite; }
+.platen-bot { animation: platenBot 3.6s ease-in-out infinite; }
+@keyframes crack { 0%,40% { opacity: 0; } 55%,100% { opacity: 1; } }
+.crack { animation: crack 3.6s ease-in-out infinite; }
+@keyframes ionFlow { from { stroke-dashoffset: 40; } to { stroke-dashoffset: 0; } }
+.ion-flow { stroke-dasharray: 6 14; animation: ionFlow 1.2s linear infinite; }
+/* ===== TECH: SIMULATOR ===== */
+.sim-layout { display: grid; grid-template-columns: 1fr 520px; gap: 24px; width: 100%; min-height: 0; }
+.sim-main { padding: 22px 26px 22px; display: flex; flex-direction: column; min-height: 0; }
+.sim-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.sim-head h3 { font-size: 30px; font-weight: 900; }
+.sim-head p { margin-top: 4px; font-size: 19px; color: var(--white-muted); font-weight: 600; }
+.sim-readout { text-align: right; }
+.sim-readout .big { font-size: 58px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; color: var(--white); }
+.sim-readout .big small { font-size: 26px; color: var(--cyan); margin-left: 6px; }
+.sim-readout .sub { margin-top: 6px; font-size: 19px; font-weight: 700; color: var(--cyan-b); }
+.sim-canvas-wrap { flex: 1; min-height: 0; margin: 12px 0 12px; border-radius: 20px; overflow: hidden; position: relative; border: 1.5px solid var(--border); background: #041024; }
+#simCanvas { width: 100%; height: 100%; display: block; }
+.sim-legend { position: absolute; left: 16px; top: 14px; display: flex; gap: 14px; }
+.sim-legend span { display: inline-flex; align-items: center; gap: 7px; font-size: 16px; font-weight: 700; color: var(--white-dim); background: rgba(2,8,20,0.7); padding: 6px 12px; border-radius: 20px; }
+.sim-legend i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+.sim-controls { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: center; }
+.sim-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.preset-btn {
+height: 74px; border-radius: 16px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.03);
+color: var(--white); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+}
+.preset-btn .p { font-size: 22px; font-weight: 900; }
+.preset-btn .d { font-size: 15px; font-weight: 700; color: var(--white-muted); }
+.preset-btn.active { border-color: var(--cyan); background: rgba(63,216,255,0.16); box-shadow: 0 0 20px rgba(63,216,255,0.2); }
+.preset-btn.active .p { color: var(--cyan-b); }
+.temp-toggle { display: flex; background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); border-radius: 18px; padding: 5px; height: 74px; }
+.temp-btn { flex: 1; border: none; border-radius: 14px; background: transparent; color: var(--white-muted); font-size: 20px; font-weight: 800; cursor: pointer; line-height: 1.2; }
+.temp-btn.active.cold { background: #2E6FAE; color: #fff; }
+.temp-btn.active.warm { background: linear-gradient(120deg, #FF8A3D, var(--amber)); color: #2A1200; }
+.sim-slider-row { margin-top: 14px; display: flex; align-items: center; gap: 16px; }
+.sim-slider-row .lbl { font-size: 18px; font-weight: 800; color: var(--white-muted); white-space: nowrap; }
+input[type=range] { -webkit-appearance: none; appearance: none; flex: 1; height: 16px; border-radius: 10px; background: linear-gradient(90deg, var(--cyan) var(--fill, 100%), rgba(255,255,255,0.12) var(--fill, 100%)); outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 52px; height: 52px; border-radius: 50%; background: #fff; border: 6px solid var(--cyan); box-shadow: 0 0 18px rgba(63,216,255,0.6); cursor: pointer; }
+input[type=range]::-moz-range-thumb { width: 42px; height: 42px; border-radius: 50%; background: #fff; border: 6px solid var(--cyan); cursor: pointer; }
+.sim-hud { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+.hud-card { padding: 22px 24px; }
+.hud-card .t { font-size: 18px; font-weight: 800; color: var(--white-muted); letter-spacing: .3px; }
+.hud-card .v { margin-top: 8px; font-size: 28px; font-weight: 900; line-height: 1.3; }
+.hud-card .d { margin-top: 8px; font-size: 18px; color: var(--white-dim); line-height: 1.45; font-weight: 500; }
+.hud-bar { margin-top: 12px; height: 18px; border-radius: 10px; background: rgba(255,255,255,0.08); overflow: hidden; }
+.hud-bar > i { display: block; height: 100%; border-radius: 10px; transition: width .35s ease; }
+.hud-scale { display: flex; justify-content: space-between; margin-top: 6px; font-size: 15px; color: var(--white-muted); font-weight: 700; }
+/* ===== TECH: WHY ===== */
+.why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; width: 100%; }
+.why-card { padding: 24px 26px; display: flex; flex-direction: column; min-height: 0; }
+.why-card.hero { border-color: var(--border-bright); box-shadow: 0 0 40px rgba(63,216,255,0.12); }
+.why-badge { align-self: flex-start; font-size: 17px; font-weight: 900; padding: 7px 16px; border-radius: 20px; letter-spacing: .5px; }
+.why-card h4 { margin-top: 14px; font-size: 31px; font-weight: 900; }
+.why-svg { margin: 16px 0 18px; border-radius: 18px; background: #041024; border: 1px solid var(--border); padding: 12px; flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.why-svg svg { width: 100%; height: 100%; display: block; }
+.why-card p { font-size: 23px; line-height: 1.55; color: var(--white-dim); font-weight: 500; }
+.why-card p b { color: var(--cyan-b); }
+/* ===== TECH: COMPARE ===== */
+.cmp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; width: 100%; }
+.cmp-card { padding: 24px 28px; display: flex; flex-direction: column; min-height: 0; }
+.cmp-card.good { border-color: var(--border-bright); box-shadow: 0 0 40px rgba(63,216,255,0.14); }
+.cmp-card.bad { border-color: rgba(255,107,107,0.3); }
+.cmp-head { display: flex; align-items: center; gap: 14px; }
+.cmp-head .ic { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 30px; }
+.cmp-card.good .ic { background: rgba(63,216,255,0.18); }
+.cmp-card.bad .ic { background: rgba(255,107,107,0.15); }
+.cmp-head h4 { font-size: 32px; font-weight: 900; }
+.cmp-head small { display: block; font-size: 17px; color: var(--white-muted); font-weight: 700; }
+.cmp-svg { margin: 16px 0 10px; border-radius: 18px; background: #041024; border: 1px solid var(--border); flex: 1; min-height: 200px; display: flex; align-items: center; justify-content: center; padding: 10px; }
+.cmp-svg svg { height: 100%; width: auto; }
+.cmp-list { display: flex; flex-direction: column; gap: 10px; }
+.cmp-item { display: flex; align-items: center; gap: 14px; padding: 14px 18px; border-radius: 14px; background: rgba(255,255,255,0.03); }
+.cmp-item .b { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 19px; }
+.cmp-card.good .b { background: var(--cyan); color: #021022; }
+.cmp-card.bad .b { background: rgba(255,107,107,0.25); color: var(--red); }
+.cmp-item small { display: block; font-size: 16px; font-weight: 800; color: var(--white-muted); }
+.cmp-item span { font-size: 23px; font-weight: 700; color: var(--white); line-height: 1.35; }
+/* ===== PROCESS PANEL ===== */
+.flow-strip { padding: 18px 22px; display: flex; align-items: stretch; gap: 8px; flex-shrink: 0; }
+.flow-node { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 14px 6px; border-radius: 18px; text-align: center; position: relative; }
+.flow-node .em { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(255,255,255,0.06); border: 1.5px solid var(--border); }
+.flow-node .nm { font-size: 20px; font-weight: 800; color: var(--white-dim); line-height: 1.25; }
+.flow-node .no { font-size: 13px; font-weight: 800; color: var(--white-muted); letter-spacing: 1px; }
+.flow-node.wip { background: linear-gradient(160deg, rgba(63,216,255,0.25), rgba(155,135,255,0.18)); border: 2px solid var(--cyan); box-shadow: 0 0 30px rgba(63,216,255,0.3); }
+.flow-node.wip .em { background: var(--cyan); border-color: var(--cyan); }
+.flow-node.wip .nm { color: #fff; }
+.flow-node.wip .tag { position: absolute; top: -14px; padding: 4px 12px; border-radius: 12px; background: var(--amber); color: #2A1200; font-size: 14px; font-weight: 900; white-space: nowrap; }
+.flow-arrow { display: flex; align-items: center; color: var(--cyan); font-size: 26px; font-weight: 900; opacity: .7; }
+.proc-title-row { margin: 22px 4px 14px; display: flex; align-items: baseline; gap: 16px; flex-shrink: 0; }
+.proc-title-row h3 { font-size: 30px; font-weight: 900; }
+.proc-title-row p { font-size: 19px; color: var(--white-muted); font-weight: 600; }
+.steps-row { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+.step-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: transform .15s, border-color .2s; }
+.step-card:active { transform: scale(0.98); }
+.step-card.key { border-color: var(--amber); box-shadow: 0 0 34px rgba(255,181,71,0.18); }
+.step-ill { flex: 1; min-height: 0; background: #041024; border-bottom: 1px solid var(--border); position: relative; display: flex; align-items: center; justify-content: center; padding: 10px; }
+.step-ill svg { width: 100%; height: 100%; }
+.step-badge { position: absolute; left: 14px; top: 12px; font-size: 15px; font-weight: 900; padding: 5px 12px; border-radius: 12px; border: 1.5px solid var(--cyan); color: var(--cyan-b); background: rgba(2,8,20,0.7); letter-spacing: 1px; }
+.step-card.key .step-badge { border-color: var(--amber); color: var(--amber); }
+.zoom-tag { position: absolute; right: 12px; top: 12px; font-size: 14px; font-weight: 800; padding: 5px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); color: var(--white-dim); }
+.step-body { padding: 16px 18px 18px; }
+.step-body .t { font-size: 23px; font-weight: 900; line-height: 1.3; }
+.step-body .d { margin-top: 6px; font-size: 18px; color: var(--white-dim); line-height: 1.45; font-weight: 500; }
+/* ===== APPLICATIONS ===== */
+.app-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; flex-shrink: 0; }
+.app-tab { height: 84px; border-radius: 20px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.03); color: var(--white-muted); font-size: 23px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; }
+.app-tab .e { font-size: 32px; }
+.app-tab.active { background: linear-gradient(120deg, rgba(63,216,255,0.28), rgba(155,135,255,0.18)); border-color: var(--cyan); color: #fff; box-shadow: 0 0 26px rgba(63,216,255,0.2); }
+.app-split { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.app-items { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 16px; min-height: 0; }
+.app-item { padding: 26px 30px; display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+.app-item .ico { width: 112px; height: 112px; border-radius: 30px; display: flex; align-items: center; justify-content: center; font-size: 62px; background: linear-gradient(140deg, rgba(63,216,255,0.22), rgba(155,135,255,0.18)); border: 1px solid var(--border-bright); }
+.app-item .n { font-size: 32px; font-weight: 900; }
+.app-item .s { font-size: 22px; color: var(--white-dim); font-weight: 500; line-height: 1.4; }
+.app-hero { padding: 30px 34px; display: flex; flex-direction: column; border-color: var(--border-bright); }
+.app-hero h3 { font-size: 42px; font-weight: 900; line-height: 1.25; }
+.app-hero .lead { margin-top: 18px; font-size: 25px; line-height: 1.55; color: var(--white-dim); font-weight: 500; }
+.app-checks { margin-top: 30px; display: flex; flex-direction: column; gap: 16px; }
+.app-check { display: flex; gap: 14px; align-items: flex-start; padding: 16px 20px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); font-size: 24px; font-weight: 700; line-height: 1.4; }
+.app-check .c { width: 34px; height: 34px; border-radius: 50%; background: var(--cyan); color: #021022; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 18px; margin-top: 1px; }
+.app-pills { margin-top: auto; padding-top: 20px; display: flex; flex-wrap: wrap; gap: 10px; }
+.app-pill { padding: 12px 20px; border-radius: 14px; background: rgba(255,181,71,0.12); border: 1px solid rgba(255,181,71,0.4); color: var(--amber); font-size: 19px; font-weight: 800; }
+/* ===== EQUIPMENT ===== */
+.equip-banner { padding: 18px 26px; display: flex; align-items: center; gap: 20px; margin-bottom: 20px; flex-shrink: 0; }
+.equip-banner .badge { padding: 8px 18px; border-radius: 30px; background: var(--cyan); color: #021022; font-size: 19px; font-weight: 900; white-space: nowrap; }
+.equip-banner .txt { font-size: 25px; font-weight: 800; }
+.equip-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex: 1; min-height: 0; }
+.equip-card { padding: 0; overflow: hidden; display: flex; flex-direction: column; cursor: pointer; transition: all .2s; }
+.equip-card.active { border-color: var(--cyan); box-shadow: 0 0 36px rgba(63,216,255,0.25); }
+.equip-ill { flex: 1; min-height: 0; background: radial-gradient(400px 220px at 50% 70%, rgba(63,216,255,0.12), transparent 70%), #041024; display: flex; align-items: center; justify-content: center; padding: 12px; }
+.equip-ill svg { height: 100%; width: auto; max-width: 100%; }
+.equip-body { padding: 18px 22px 20px; border-top: 1px solid var(--border); }
+.equip-body .row1 { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.equip-body .nm { font-size: 30px; font-weight: 900; }
+.equip-body .tag { padding: 6px 14px; border-radius: 12px; background: rgba(63,216,255,0.14); border: 1px solid var(--border-bright); color: var(--cyan-b); font-size: 16px; font-weight: 800; white-space: nowrap; }
+.equip-body .ds { margin-top: 8px; font-size: 19px; color: var(--white-dim); line-height: 1.45; font-weight: 500; }
+.equip-hud { margin-top: 20px; padding: 20px 24px; flex-shrink: 0; }
+.equip-hud-title { font-size: 24px; font-weight: 900; margin-bottom: 14px; }
+.equip-hud-title span { color: var(--cyan); }
+.equip-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.equip-tile { padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
+.equip-tile .k { font-size: 16px; font-weight: 800; color: var(--white-muted); }
+.equip-tile .v { margin-top: 6px; font-size: 21px; font-weight: 800; line-height: 1.35; }
+.equip-features { margin-top: 14px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.feat { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 16px; background: rgba(255,181,71,0.08); border: 1px solid rgba(255,181,71,0.28); }
+.feat .e { font-size: 28px; }
+.feat .t { font-size: 19px; font-weight: 800; line-height: 1.3; }
+.feat .t small { display: block; font-size: 15px; font-weight: 600; color: var(--white-muted); }
+/* ===== CONTACT ===== */
+.contact-stage { flex: 1; min-height: 0; display: grid; grid-template-columns: 1fr 470px; gap: 24px; }
+.contact-card { padding: 26px 30px; display: flex; flex-direction: column; min-height: 0; }
+.contact-head { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+.contact-head .i { font-size: 30px; }
+.contact-head h3 { font-size: 30px; font-weight: 900; }
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.meta-item { display: flex; gap: 14px; align-items: center; padding: 14px 18px; border-radius: 18px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); }
+.meta-item .ib { width: 54px; height: 54px; border-radius: 16px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; background: rgba(63,216,255,0.14); }
+.meta-item .l { font-size: 16px; font-weight: 800; color: var(--white-muted); }
+.meta-item .v { margin-top: 3px; font-size: 21px; font-weight: 800; line-height: 1.35; }
+.meta-item .v .sep { color: var(--white-muted); margin: 0 6px; }
+.addr-btns { margin-top: 16px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.addr-btn { height: 66px; border-radius: 16px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.03); color: var(--white-muted); font-size: 21px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.addr-btn.active { border-color: var(--cyan); background: rgba(63,216,255,0.16); color: #fff; }
+.map-box { margin-top: 16px; flex: 1; min-height: 0; border-radius: 20px; overflow: hidden; border: 1.5px solid var(--border); background: #041024; position: relative; }
+.offline-map-view { display: flex; width: 100%; height: 100%; }
+.offline-map-canvas-col { flex: 1.45; padding: 14px; min-width: 0; overflow: hidden; }
+.offline-map-data-col { flex: 1; padding: 22px 24px; border-left: 1px solid var(--border); display: flex; flex-direction: column; gap: 16px; overflow: hidden; }
+.loc-name { font-size: 27px; font-weight: 900; color: var(--cyan-b); }
+.loc-lbl { font-size: 15px; font-weight: 800; color: var(--white-muted); letter-spacing: .5px; }
+.loc-road { margin-top: 4px; font-size: 23px; font-weight: 800; line-height: 1.35; }
+.loc-jibun { margin-top: 4px; font-size: 17px; color: var(--white-muted); font-weight: 600; }
+.map-mode-float { position: absolute; right: 14px; bottom: 14px; display: flex; gap: 6px; background: rgba(2,8,20,0.8); padding: 5px; border-radius: 14px; border: 1px solid var(--border); z-index: 6; }
+.map-mode-btn { height: 44px; padding: 0 16px; border: none; border-radius: 10px; background: transparent; color: var(--white-muted); font-size: 17px; font-weight: 800; cursor: pointer; }
+.map-mode-btn.active { background: var(--cyan); color: #021022; }
+.qr-card { padding: 28px 30px; display: flex; flex-direction: column; align-items: center; text-align: center; border-color: var(--border-bright); }
+.qr-head { display: flex; align-items: center; gap: 10px; }
+.qr-head h3 { font-size: 34px; font-weight: 900; }
+.qr-holder { margin-top: 22px; width: 300px; height: 300px; padding: 18px; background: #fff; border-radius: 24px; box-shadow: 0 0 40px rgba(63,216,255,0.25); }
+.qr-holder img, .qr-holder canvas { width: 100% !important; height: 100% !important; display: block; }
+.qr-prompt { margin-top: 22px; font-size: 22px; line-height: 1.5; color: var(--white-dim); font-weight: 600; }
+.qr-prompt strong { color: var(--cyan-b); }
+.qr-pills { margin-top: auto; width: 100%; display: flex; flex-direction: column; gap: 10px; padding-top: 20px; }
+.qr-pill { padding: 14px 18px; border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); font-size: 21px; font-weight: 800; }
+/* ===== MODAL ===== */
+.modal-backdrop { position: absolute; inset: 0; z-index: 100; background: rgba(1,4,10,0.82); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; }
+.modal-backdrop.open { display: flex; animation: panelIn .3s ease; }
+.modal-window { width: 1500px; max-height: calc(var(--kiosk-h) - 120px); display: flex; flex-direction: column; overflow: hidden; border-color: var(--border-bright); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; padding: 22px 30px; border-bottom: 1px solid var(--border); }
+.modal-header h3 { font-size: 32px; font-weight: 900; }
+.modal-close { width: 64px; height: 64px; border-radius: 50%; border: 1.5px solid var(--border-bright); background: rgba(255,255,255,0.06); color: #fff; font-size: 28px; cursor: pointer; }
+.modal-body { display: grid; grid-template-columns: 1.15fr 1fr; gap: 30px; padding: 28px 30px 32px; }
+.modal-ill { background: #041024; border-radius: 20px; border: 1px solid var(--border); height: 600px; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-ill svg { width: 100%; height: 100%; }
+.modal-desc { display: flex; flex-direction: column; gap: 18px; }
+.modal-desc .lead { font-size: 26px; line-height: 1.55; font-weight: 600; color: var(--white-dim); }
+.modal-points { display: flex; flex-direction: column; gap: 12px; }
+.modal-point { display: flex; gap: 14px; align-items: flex-start; padding: 16px 18px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid var(--border); font-size: 22px; font-weight: 700; line-height: 1.45; }
+.modal-point .c { color: var(--cyan); font-weight: 900; }
+html[lang="en"] .nav-title { font-size: 21px; }
+html[lang="en"] .home-hero-title { font-size: 64px; letter-spacing: -1px; }
+html[lang="en"] .home-hero-desc { font-size: 24px; }
+html[lang="en"] .metric-card .lbl { font-size: 17px; }
+/* ===== DISPERSER EXTRA ===== */
+.home-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.home-overlay.dsp { background: linear-gradient(90deg, rgba(2,6,14,0.96) 0%, rgba(2,6,14,0.86) 45%, rgba(2,6,14,0.35) 75%, rgba(2,6,14,0.15) 100%); }
+.home-stage.dsp { grid-template-columns: 1fr; }
+.home-left.dsp { max-width: 1120px; }
+.proc-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; width: 100%; }
+.proc-card { padding: 24px 26px; display: flex; flex-direction: column; min-height: 0; }
+.proc-card .why-svg { flex: 1; }
+.proc-tags { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.proc-tags span { padding: 8px 14px; border-radius: 12px; background: rgba(255,181,71,0.12); border: 1px solid rgba(255,181,71,0.4); color: var(--amber); font-size: 18px; font-weight: 800; }
+.chamber-toggle { display: flex; background: rgba(255,255,255,0.04); border: 1.5px solid var(--border); border-radius: 18px; padding: 5px; height: 74px; }
+.chamber-btn { flex: 1; border: none; border-radius: 14px; background: transparent; color: var(--white-muted); font-size: 19px; font-weight: 800; cursor: pointer; line-height: 1.2; }
+.chamber-btn.active.z { background: linear-gradient(120deg, #E0443E, #FF6B6B); color: #fff; }
+.chamber-btn.active.y { background: linear-gradient(120deg, #E8B21C, var(--amber)); color: #2A1200; }
+.app-photo { position: relative; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding: 26px; background-size: cover; background-position: center; }
+.app-photo::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2,6,14,0.1) 0%, rgba(2,6,14,0.35) 45%, rgba(2,6,14,0.92) 100%); }
+.app-photo > * { position: relative; }
+.app-photo .ph-items { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.ph-item { padding: 18px 20px; border-radius: 18px; background: rgba(6,17,39,0.78); border: 1px solid var(--border-bright); backdrop-filter: blur(6px); display: flex; gap: 14px; align-items: center; }
+.ph-item .e { font-size: 40px; }
+.ph-item .n { font-size: 25px; font-weight: 900; }
+.ph-item .s { margin-top: 2px; font-size: 18px; color: var(--white-dim); font-weight: 500; line-height: 1.35; }
+.equip-ill.photo { background: radial-gradient(420px 260px at 50% 60%, rgba(63,216,255,0.16), transparent 72%), radial-gradient(600px 300px at 50% 100%, rgba(255,255,255,0.06), transparent 70%), #061127; }
+.equip-ill.photo img { max-height: 100%; max-width: 100%; object-fit: contain; filter: drop-shadow(0 18px 30px rgba(0,0,0,0.55)); }
+.equip-hud-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.equip-hud-head .equip-hud-title { margin-bottom: 0; }
+.btn-spec { height: 56px; padding: 0 24px; border-radius: 16px; border: 1.5px solid var(--border-bright); background: rgba(63,216,255,0.12); color: var(--cyan-b); font-size: 20px; font-weight: 800; cursor: pointer; }
+.equip-tiles.six { grid-template-columns: repeat(6, 1fr); }
+.equip-features.six { grid-template-columns: repeat(6, 1fr); }
+.feat.col { flex-direction: column; align-items: flex-start; gap: 6px; }
+.spec-table { width: 100%; border-collapse: collapse; font-size: 21px; text-align: center; }
+.spec-table th { padding: 16px 10px; background: rgba(63,216,255,0.14); color: var(--cyan-b); font-size: 20px; font-weight: 900; border-bottom: 2px solid var(--border-bright); }
+.spec-table th:first-child, .spec-table td:first-child { text-align: left; padding-left: 20px; color: var(--white-muted); font-weight: 800; }
+.spec-table td { padding: 15px 10px; border-bottom: 1px solid var(--border); color: var(--white-dim); font-weight: 600; line-height: 1.35; }
+.spec-table td.hl { color: #fff; font-weight: 900; }
+.spec-table small { display: block; font-size: 15px; color: var(--white-muted); font-weight: 600; }
+.spec-note { margin-top: 14px; font-size: 17px; color: var(--white-muted); font-weight: 600; }
+.video-stage { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 20px; }
+.video-pills { display: flex; gap: 14px; flex-shrink: 0; }
+.video-pill { flex: 1; height: 80px; border-radius: 20px; border: 1.5px solid var(--border); background: rgba(255,255,255,0.03); color: var(--white-muted); font-size: 24px; font-weight: 800; cursor: pointer; }
+.video-pill.active { background: linear-gradient(120deg, var(--cyan), #5FB7FF); color: #021022; border-color: var(--cyan); }
+.video-box { flex: 1; min-height: 0; border-radius: 26px; overflow: hidden; border: 1.5px solid var(--border-bright); background: #000; position: relative; }
+.video-box video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+.video-caption { position: absolute; left: 24px; bottom: 22px; padding: 12px 20px; border-radius: 14px; background: rgba(2,8,20,0.8); border: 1px solid var(--border); font-size: 21px; font-weight: 700; color: var(--white-dim); max-width: 70%; }
+.modal-body.single { display: block; }
+.equip-tile small { display: block; font-size: 15px; color: var(--white-muted); font-weight: 600; }
+.modal-window.wide { width: 1600px; }
+html[lang="en"] .home-hero-title { font-size: 70px; }
+</style>
+</head>
+<body>
+<div id="kiosk-scaler">
+<div id="kiosk-app">
+<aside id="sidebar">
+<div class="sidebar-logo-area">
+<img src="https://raw.githubusercontent.com/ilshinautoclave/ilshinautoclave/main/isalogo_w.png" alt="ILSHINAUTOCLAVE" decoding="async">
+</div>
+<div class="sidebar-product">
+<div class="wip-word">NANO</div>
+<div class="wip-full">DISPERSER · HOMOGENIZER</div>
+</div>
+<nav class="sidebar-nav">
+<button class="nav-btn active" data-target="home" onclick="switchNav('home')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_home">홈</span><span class="nav-sub">HOME</span></span>
+</button>
+<button class="nav-btn" data-target="tech" onclick="switchNav('tech')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="12" r="3"/><circle cx="15" cy="8" r="1.5"/><circle cx="18" cy="13" r="1.2"/><circle cx="14" cy="16" r="1"/><path d="M9 12h3"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_tech">분산 원리</span><span class="nav-sub">TECHNOLOGY</span></span>
+</button>
+<button class="nav-btn" data-target="app" onclick="switchNav('app')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_app">적용 분야</span><span class="nav-sub">APPLICATIONS</span></span>
+</button>
+<button class="nav-btn" data-target="equip" onclick="switchNav('equip')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 9h4M7 13h4"/><circle cx="16" cy="11" r="2.5"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_equip">장비 소개</span><span class="nav-sub">EQUIPMENT</span></span>
+</button>
+<button class="nav-btn" data-target="video" onclick="switchNav('video')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="15" height="14" rx="2"/><path d="M17 10l5-3v10l-5-3z"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_video">작동 영상</span><span class="nav-sub">VIDEO</span></span>
+</button>
+<button class="nav-btn" data-target="contact" onclick="switchNav('contact')">
+<span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/></svg></span>
+<span class="nav-text"><span class="nav-title" data-i18n="nav_contact">상담 문의</span><span class="nav-sub">CONTACT</span></span>
+</button>
+</nav>
+<div class="sidebar-footer"><div class="status-dot"></div><span>HIGH PRESSURE HOMOGENIZER</span></div>
+</aside>
+<main id="main-content">
+<header class="top-bar">
+<div class="top-bar-left">
+<span class="top-bar-brand-tag">ILSHINAUTOCLAVE</span>
+<span class="top-bar-title" id="pageTitleDisplay">초고압 나노분산기</span>
+</div>
+<div class="top-bar-right">
+<div class="top-clock" id="liveClock">12:00:00</div>
+<div class="lang-switcher">
+<button class="lang-btn active" id="btnLangKo" onclick="setLanguage('ko')">KR</button>
+<button class="lang-btn" id="btnLangEn" onclick="setLanguage('en')">EN</button>
+</div>
+</div>
+</header>
+<div class="panels-container">
+<!-- HOME -->
+<section class="panel active" id="panel-home">
+<video class="home-video" id="homeVideo" autoplay muted loop playsinline preload="auto" src="assets/video/production_chamber.mp4"></video>
+<div class="home-overlay dsp"></div>
+<div class="home-stage dsp">
+<div class="home-left dsp">
+<div class="home-tag-pill" data-i18n="home_tag"><span>●</span> 일신오토클레이브 · 초고압 분산기 Nano Disperser</div>
+<h1 class="home-hero-title" data-i18n="home_title">1,500 bar의 힘으로,<br>입자를 <span class="hl-cyan">나노 단위</span>로 <span class="hl-amber">고르게.</span></h1>
+<p class="home-hero-desc" data-i18n="home_desc">압력을 이용해 <strong>분산·균질</strong>, <strong>에멀전</strong>, <strong>세포벽 파괴</strong>를 수행하는 고압분산기. 연구용 소형 장비부터 양산 설비까지 일신오토클레이브가 직접 설계·제조합니다.</p>
+<div class="home-metrics-grid">
+<div class="metric-card"><div class="val">1,500<small>bar</small></div><div class="lbl" data-i18n="m1_lbl">사용 압력</div></div>
+<div class="metric-card"><div class="val" data-i18n="m2_val">0.1~8<small>L/min</small></div><div class="lbl" data-i18n="m2_lbl">모델별 최대 유량</div></div>
+<div class="metric-card"><div class="val">Z · Y<small>Type</small></div><div class="lbl" data-i18n="m3_lbl">공정별 챔버 선택</div></div>
+<div class="metric-card"><div class="val" data-i18n="m4_val">5<small>종</small></div><div class="lbl" data-i18n="m4_lbl">Lab부터 양산까지 라인업</div></div>
+</div>
+<div class="home-cred">
+<div class="cred-chip" data-i18n="cred_1">🧪 <b>분산·균질</b></div>
+<div class="cred-chip" data-i18n="cred_2">💧 <b>에멀전</b></div>
+<div class="cred-chip" data-i18n="cred_3">🦠 <b>세포벽 파괴</b></div>
+<div class="cred-chip" data-i18n="cred_4">🏭 식품 · 화장품 · 의약품 · 화학 · 전자 소재</div>
+</div>
+<div class="home-bottom-row">
+<button class="btn-primary" onclick="switchNav('tech')" data-i18n="home_cta_tech">⚡ 분산 원리 체험하기</button>
+<button class="btn-secondary" onclick="switchNav('video')" data-i18n="home_cta_video">▶ 작동 영상 보기</button>
+</div>
+</div>
+</div>
+</section>
+<!-- TECH -->
+<section class="panel" id="panel-tech">
+<div class="segment-bar">
+<button class="segment-btn active" data-seg="sim" onclick="switchTechSegment('sim', this)" data-i18n="seg_sim">⚡ 분산 시뮬레이터</button>
+<button class="segment-btn" data-seg="ch" onclick="switchTechSegment('ch', this)" data-i18n="seg_ch">🔀 Z · Y 챔버 타입</button>
+<button class="segment-btn" data-seg="proc" onclick="switchTechSegment('proc', this)" data-i18n="seg_proc">🧪 3가지 공정</button>
+</div>
+<div class="subview active" id="sub-sim">
+<div class="sim-layout">
+<div class="sim-main glass">
+<div class="sim-head">
+<div>
+<h3 data-i18n="sim_title">인터랙션 챔버 분산 시뮬레이터</h3>
+<p data-i18n="sim_sub">압력과 챔버 타입을 바꿔, 좁은 챔버를 지난 입자가 얼마나 잘게 나뉘는지 확인해 보세요.</p>
+</div>
+<div class="sim-readout">
+<div class="big" id="simPressure">1,500<small>bar</small></div>
+<div class="sub" id="simMpa">150 MPa · Z Type</div>
+</div>
+</div>
+<div class="sim-canvas-wrap">
+<canvas id="simCanvas"></canvas>
+<div class="sim-legend" id="simLegend"></div>
+</div>
+<div class="sim-controls">
+<div class="sim-presets">
+<button class="preset-btn" onclick="setPresetPressure(0)"><span class="p">0 bar</span><span class="d" data-i18n="pre_0">투입 전</span></button>
+<button class="preset-btn" onclick="setPresetPressure(500)"><span class="p">500 bar</span><span class="d" data-i18n="pre_1">거친 분산</span></button>
+<button class="preset-btn" onclick="setPresetPressure(1000)"><span class="p">1,000 bar</span><span class="d" data-i18n="pre_2">미립화 진행</span></button>
+<button class="preset-btn active" onclick="setPresetPressure(1500)"><span class="p">1,500 bar</span><span class="d" data-i18n="pre_3">나노 분산</span></button>
+</div>
+<div class="chamber-toggle">
+<button class="chamber-btn z active" id="btnZ" onclick="setChamber('z')" data-i18n="ch_z_btn">Z Type<br>분말·액상</button>
+<button class="chamber-btn y" id="btnY" onclick="setChamber('y')" data-i18n="ch_y_btn">Y Type<br>액상·액상</button>
+</div>
+</div>
+<div class="sim-slider-row">
+<span class="lbl" data-i18n="sim_slider">👆 압력 조절</span>
+<input type="range" id="pressureSlider" min="0" max="1500" step="50" value="1500" oninput="updateSimulator(this.value)">
+</div>
+</div>
+<div class="sim-hud">
+<div class="hud-card glass">
+<div class="t" data-i18n="hud_state_t">🔬 출구 시료 상태</div>
+<div class="v" id="hudStateVal">나노 수준 분산</div>
+<div class="d" id="hudStateDesc"></div>
+</div>
+<div class="hud-card glass">
+<div class="t" data-i18n="hud_size_t">📏 입자 · 액적 크기</div>
+<div class="hud-bar"><i id="hudSizeBar" style="width:15%; background: linear-gradient(90deg, #3FD8FF, #9B87FF);"></i></div>
+<div class="hud-scale"><span data-i18n="sc_small">작음</span><span data-i18n="sc_big">큼</span></div>
+</div>
+<div class="hud-card glass">
+<div class="t" data-i18n="hud_uni_t">📊 크기 균일도</div>
+<div class="hud-bar"><i id="hudUniBar" style="width:90%; background: linear-gradient(90deg, #1A86C9, #3FD8FF);"></i></div>
+<div class="hud-scale"><span data-i18n="sc_uneven">불균일</span><span data-i18n="sc_even">균일</span></div>
+</div>
+<div class="hud-card glass">
+<div class="t" data-i18n="hud_ch_t">🔀 선택한 챔버</div>
+<div class="d" id="hudChDesc" style="font-size:19px;"></div>
+</div>
+<div class="concept-note" data-i18n="sim_note">※ 이해를 돕기 위한 개념 시각화이며, 실제 입자 크기와 결과는 시료·공정 조건에 따라 다릅니다.</div>
+</div>
+</div>
+</div>
+<div class="subview" id="sub-ch"><div class="cmp-grid" id="chGrid"></div></div>
+<div class="subview" id="sub-proc"><div class="proc-grid" id="procGrid"></div></div>
+</section>
+<!-- APPLICATIONS -->
+<section class="panel" id="panel-app">
+<div class="app-tabs" id="appTabs"></div>
+<div class="app-split">
+<div class="app-photo glass" id="appPhoto"></div>
+<div class="app-hero glass" id="appHero"></div>
+</div>
+</section>
+<!-- EQUIPMENT -->
+<section class="panel" id="panel-equip">
+<div class="equip-banner glass">
+<span class="badge" data-i18n="eq_badge">Nano Disperser 라인업</span>
+<span class="txt" data-i18n="eq_head">연구용 소형 장비부터 파일럿, 대형 양산 설비까지 — 공정 규모에 맞춰 선택하세요.</span>
+</div>
+<div class="equip-row" id="equipRow"></div>
+<div class="equip-hud glass">
+<div class="equip-hud-head">
+<div class="equip-hud-title">⚙️ <span id="eqHudName">NH500</span> <em data-i18n="eq_hud_suffix" style="font-style:normal">주요 제원</em></div>
+<button class="btn-spec" onclick="openSpecModal()" data-i18n="btn_spec">📋 전체 모델 제원표 보기</button>
+</div>
+<div class="equip-tiles six" id="equipTiles"></div>
+<div class="equip-features six" id="equipFeatures"></div>
+</div>
+</section>
+<!-- VIDEO -->
+<section class="panel" id="panel-video">
+<div class="video-stage">
+<div class="video-pills" id="videoPills"></div>
+<div class="video-box">
+<video id="cinemaVideo" controls playsinline loop preload="metadata"></video>
+<div class="video-caption" id="videoCaption"></div>
+</div>
+</div>
+</section>
+<!-- CONTACT -->
+<section class="panel" id="panel-contact">
+<div class="contact-stage">
+<div class="contact-card glass">
+<div class="contact-head"><span class="i">🏢</span><h3 data-i18n="contact_title">회사 정보 · 오시는 길</h3></div>
+<div class="meta-grid">
+<div class="meta-item"><div class="ib">📞</div><div><div class="l" data-i18n="c_tel">제품 문의 · A/S</div><div class="v" data-i18n="c_tel_v">제품문의 042-602-8021<br>A/S 042-602-8018</div></div></div>
+<div class="meta-item"><div class="ib">🌐</div><div><div class="l" data-i18n="c_web">홈페이지</div><div class="v">suflux.com</div></div></div>
+<div class="meta-item"><div class="ib">☎️</div><div><div class="l" data-i18n="c_main">대표 전화 · 팩스</div><div class="v">TEL 042-931-6100<br>FAX 042-931-6104</div></div></div>
+<div class="meta-item"><div class="ib">💼</div><div><div class="l" data-i18n="c_biz">사업 분야</div><div class="v" data-i18n="c_biz_v">고압분산기 · HPP · CIP/WIP<br>고온·고압 장비 설계·제조</div></div></div>
+</div>
+<div class="addr-btns">
+<button class="addr-btn active" data-loc="hq" onclick="switchLocationMap('hq', this)">🏢 <span data-i18n="loc_hq">본사 · 제1공장</span></button>
+<button class="addr-btn" data-loc="p2" onclick="switchLocationMap('p2', this)">🏭 <span data-i18n="loc_p2">제2공장</span></button>
+<button class="addr-btn" data-loc="p3" onclick="switchLocationMap('p3', this)">🔬 <span data-i18n="loc_p3">제3공장 · 기술연구소</span></button>
+</div>
+<div class="map-box">
+<div id="offlineMapView" class="offline-map-view">
+<div class="offline-map-canvas-col" id="offlineMapCanvasCol"></div>
+<div class="offline-map-data-col" id="offlineMapDataCol"></div>
+</div>
+<div id="onlineMapView" style="display:none; width:100%; height:100%; position:relative;">
+<iframe id="contactMapIframe" title="일신오토클레이브 지도" src="about:blank" style="border:0; width:100%; height:100%;" loading="lazy"></iframe>
+<div id="mapOfflineFallback" style="display:none; position:absolute; inset:0; background:rgba(4,16,36,.95); flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px;">
+<div style="font-size:40px; margin-bottom:8px;">📶</div>
+<div style="font-size:22px; font-weight:800; color:var(--cyan-b); margin-bottom:6px;" data-i18n="map_off_t">현재 오프라인 환경입니다</div>
+<div style="font-size:18px; color:var(--white-dim);" data-i18n="map_off_d">구글 지도를 불러올 수 없습니다.</div>
+</div>
+</div>
+<div class="map-mode-float">
+<button class="map-mode-btn active" id="btnModeOffline" onclick="setMapMode('offline')">🗺️ <span data-i18n="map_mode_off">약도</span></button>
+<button class="map-mode-btn" id="btnModeOnline" onclick="setMapMode('online')">🌐 <span data-i18n="map_mode_on">구글 지도</span></button>
+</div>
+</div>
+</div>
+<div class="contact-card glass qr-card">
+<div class="qr-head"><span style="font-size:32px">📱</span><h3 data-i18n="qr_title">제품 자세히 보기</h3></div>
+<div class="qr-holder" id="qrContainer"></div>
+<p class="qr-prompt" data-i18n="qr_prompt">휴대폰 카메라로 QR코드를 찍으면<br><strong>고압분산기 제품 페이지</strong>로 바로 연결됩니다.</p>
+<div class="qr-pills">
+<div class="qr-pill" data-i18n="qr_p1">⚡ 모델 선택 · 맞춤 견적</div>
+<div class="qr-pill" data-i18n="qr_p2">🔀 공정별 챔버(Z·Y) 상담</div>
+<div class="qr-pill" data-i18n="qr_p3">📞 제품문의 042-602-8021</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</div>
+<div class="modal-backdrop" id="infoModal" onclick="if(event.target===this) closeModal()">
+<div class="modal-window glass" id="modalWindow">
+<div class="modal-header">
+<h3 id="modalTitle"></h3>
+<button class="modal-close" onclick="closeModal()">✕</button>
+</div>
+<div class="modal-body" id="modalBody"></div>
+</div>
+</div>
+</div>
+<script>
+/* =========================================================
+DISPERSER KIOSK — 설정값
+========================================================= */
+const CONFIG = {
+QR_URL: 'https://suflux.com/sub/disperser.php', // QR 코드 연결 주소 (고압분산기 제품 페이지)
+IDLE_TIMEOUT_MS: 120000
+};
+let currentLang = 'ko';
+let idleTimer = null;
+const L = (o) => (o && typeof o === 'object') ? (o[currentLang] ?? o.ko) : o;
+function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+const I18N = {
+ko: {
+nav_home: '홈', nav_tech: '분산 원리', nav_app: '적용 분야', nav_equip: '장비 소개', nav_video: '작동 영상', nav_contact: '상담 문의',
+home_tag: '<span>●</span> 일신오토클레이브 · 초고압 분산기 Nano Disperser',
+home_title: '1,500 bar의 힘으로,<br>입자를 <span class="hl-cyan">나노 단위</span>로 <span class="hl-amber">고르게.</span>',
+home_desc: '압력을 이용해 <strong>분산·균질</strong>, <strong>에멀전</strong>, <strong>세포벽 파괴</strong>를 수행하는 고압분산기. 연구용 소형 장비부터 양산 설비까지 일신오토클레이브가 직접 설계·제조합니다.',
+m1_lbl: '사용 압력', m2_val: '0.1~8<small>L/min</small>', m2_lbl: '모델별 최대 유량', m3_lbl: '공정별 챔버 선택', m4_val: '5<small>종</small>', m4_lbl: 'Lab부터 양산까지 라인업',
+cred_1: '🧪 <b>분산·균질</b>', cred_2: '💧 <b>에멀전</b>', cred_3: '🦠 <b>세포벽 파괴</b>', cred_4: '🏭 식품 · 화장품 · 의약품 · 화학 · 전자 소재',
+home_cta_tech: '⚡ 분산 원리 체험하기', home_cta_video: '▶ 작동 영상 보기',
+seg_sim: '⚡ 분산 시뮬레이터', seg_ch: '🔀 Z · Y 챔버 타입', seg_proc: '🧪 3가지 공정',
+sim_title: '인터랙션 챔버 분산 시뮬레이터', sim_sub: '압력과 챔버 타입을 바꿔, 좁은 챔버를 지난 입자가 얼마나 잘게 나뉘는지 확인해 보세요.',
+pre_0: '투입 전', pre_1: '거친 분산', pre_2: '미립화 진행', pre_3: '나노 분산',
+ch_z_btn: 'Z Type<br>분말·액상', ch_y_btn: 'Y Type<br>액상·액상', sim_slider: '👆 압력 조절',
+hud_state_t: '🔬 출구 시료 상태', hud_size_t: '📏 입자 · 액적 크기', hud_uni_t: '📊 크기 균일도', hud_ch_t: '🔀 선택한 챔버',
+sc_small: '작음', sc_big: '큼', sc_uneven: '불균일', sc_even: '균일',
+sim_note: '※ 이해를 돕기 위한 개념 시각화이며, 실제 입자 크기와 결과는 시료·공정 조건에 따라 다릅니다.',
+eq_badge: 'Nano Disperser 라인업', eq_head: '연구용 소형 장비부터 파일럿, 대형 양산 설비까지 — 공정 규모에 맞춰 선택하세요.',
+eq_hud_suffix: '주요 제원', btn_spec: '📋 전체 모델 제원표 보기',
+contact_title: '회사 정보 · 오시는 길', c_tel: '제품 문의 · A/S', c_tel_v: '제품문의 042-602-8021<br>A/S 042-602-8018',
+c_web: '홈페이지', c_main: '대표 전화 · 팩스', c_biz: '사업 분야', c_biz_v: '고압분산기 · HPP · CIP/WIP<br>고온·고압 장비 설계·제조',
+loc_hq: '본사 · 제1공장', loc_p2: '제2공장', loc_p3: '제3공장 · 기술연구소',
+map_off_t: '현재 오프라인 환경입니다', map_off_d: '구글 지도를 불러올 수 없습니다.', map_mode_off: '약도', map_mode_on: '구글 지도',
+qr_title: '제품 자세히 보기', qr_prompt: '휴대폰 카메라로 QR코드를 찍으면<br><strong>고압분산기 제품 페이지</strong>로 바로 연결됩니다.',
+qr_p1: '⚡ 모델 선택 · 맞춤 견적', qr_p2: '🔀 공정별 챔버(Z·Y) 상담', qr_p3: '📞 제품문의 042-602-8021',
+page_title: { home: '초고압 나노분산기', tech: '분산 원리 — 인터랙션 챔버', app: '고압분산기 적용 분야', equip: '고압분산기 라인업', video: '챔버 작동 영상', contact: '상담 문의 · 오시는 길' }
+},
+en: {
+nav_home: 'Home', nav_tech: 'How It Works', nav_app: 'Applications', nav_equip: 'Equipment', nav_video: 'Video', nav_contact: 'Contact',
+home_tag: '<span>●</span> ILSHINAUTOCLAVE · Nano Disperser High Pressure Homogenizer',
+home_title: 'The power of 1,500 bar,<br>particles <span class="hl-cyan">nano-fine</span> and <span class="hl-amber">uniform.</span>',
+home_desc: 'A high pressure homogenizer for <strong>dispersion &amp; homogenization</strong>, <strong>emulsification</strong> and <strong>cell disruption</strong> — designed and built by ILSHINAUTOCLAVE, from lab units to production systems.',
+m1_lbl: 'Operating pressure', m2_val: '0.1–8<small>L/min</small>', m2_lbl: 'Max. flow by model', m3_lbl: 'Chambers by process', m4_val: '5<small>models</small>', m4_lbl: 'From lab to production',
+cred_1: '🧪 <b>Dispersion</b>', cred_2: '💧 <b>Emulsion</b>', cred_3: '🦠 <b>Cell disruption</b>', cred_4: '🏭 Food · Cosmetics · Pharma · Chemicals · Electronics',
+home_cta_tech: '⚡ Try the Simulator', home_cta_video: '▶ Watch the Video',
+seg_sim: '⚡ Dispersion Simulator', seg_ch: '🔀 Z · Y Chambers', seg_proc: '🧪 3 Processes',
+sim_title: 'Interaction Chamber Simulator', sim_sub: 'Change pressure and chamber type to see how finely particles break up after the narrow chamber.',
+pre_0: 'Before feed', pre_1: 'Coarse', pre_2: 'Refining', pre_3: 'Nano dispersion',
+ch_z_btn: 'Z Type<br>Powder·Liquid', ch_y_btn: 'Y Type<br>Liquid·Liquid', sim_slider: '👆 Pressure',
+hud_state_t: '🔬 Output sample', hud_size_t: '📏 Particle / droplet size', hud_uni_t: '📊 Size uniformity', hud_ch_t: '🔀 Selected chamber',
+sc_small: 'Small', sc_big: 'Large', sc_uneven: 'Uneven', sc_even: 'Uniform',
+sim_note: '※ Conceptual visualization only. Actual particle size and results depend on the sample and process conditions.',
+eq_badge: 'Nano Disperser Lineup', eq_head: 'From compact lab units to pilot and large production systems — choose by process scale.',
+eq_hud_suffix: 'key specs', btn_spec: '📋 Full Specification Table',
+contact_title: 'Company Info &amp; Location', c_tel: 'Sales · Service', c_tel_v: 'Sales +82-42-602-8021<br>Service +82-42-602-8018',
+c_web: 'Website', c_main: 'Main line · Fax', c_biz: 'Business', c_biz_v: 'Homogenizers · HPP · CIP/WIP<br>High-temp &amp; high-pressure systems',
+loc_hq: 'HQ &amp; Plant 1', loc_p2: 'Plant 2', loc_p3: 'Plant 3 &amp; R&amp;D',
+map_off_t: 'Currently offline', map_off_d: 'Google Maps cannot be loaded.', map_mode_off: 'Map', map_mode_on: 'Google Maps',
+qr_title: 'Product Details', qr_prompt: 'Scan with your phone camera<br>to open the <strong>homogenizer product page</strong>.',
+qr_p1: '⚡ Model selection &amp; quotation', qr_p2: '🔀 Chamber (Z · Y) consultation', qr_p3: '📞 Sales +82-42-602-8021',
+page_title: { home: 'Nano Disperser — High Pressure Homogenizer', tech: 'How It Works — Interaction Chamber', app: 'Applications', equip: 'Homogenizer Lineup', video: 'Chamber Operation Video', contact: 'Contact &amp; Location' }
+}
+};
+/* ===== 벡터 일러스트 ===== */
+function clusterSVG(cx, cy, r, color, seed) {
+const R = rng(seed); let s = '';
+for (let i = 0; i < 7; i++) { const a = R() * 6.28, d = R() * r * 0.55; s += `<circle cx="${cx + Math.cos(a) * d}" cy="${cy + Math.sin(a) * d}" r="${r * (0.38 + R() * 0.15)}" fill="${color}"/>`; }
+return s;
+}
+function chamberSVG(kind) {
+const steel = '#6F829F';
+if (kind === 'z') {
+let inP = '', outP = '';
+[[40, 90], [70, 140], [45, 180], [85, 110]].forEach((p, i) => inP += clusterSVG(p[0], p[1], 20, '#8FA3C4', i + 3));
+const R = rng(9);
+for (let i = 0; i < 40; i++) outP += `<circle cx="${430 + R() * 120}" cy="${85 + R() * 110}" r="${3 + R() * 2}" fill="#8FA3C4"/>`;
+return `<svg viewBox="0 0 580 270" xmlns="http://www.w3.org/2000/svg">
+<rect x="4" y="60" width="130" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${inP}
+<rect x="150" y="40" width="250" height="190" rx="18" fill="#1A2E4F" stroke="${steel}" stroke-width="6"/>
+<path d="M134 135 H180 L230 90 L280 180 L330 90 L370 135 H416" fill="none" stroke="#041024" stroke-width="16" stroke-linejoin="round"/>
+<path d="M134 135 H180 L230 90 L280 180 L330 90 L370 135 H416" fill="none" stroke="#FF6B6B" stroke-width="6" stroke-linejoin="round" class="ion-flow"/>
+<rect x="416" y="60" width="150" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${outP}
+<text x="275" y="30" text-anchor="middle" fill="#FF8A8A" font-size="20" font-weight="900" font-family="'Pretendard Variable',Pretendard,sans-serif">Z-Type Chamber</text>
+</svg>`;
+}
+let outP = '';
+const R = rng(4);
+for (let i = 0; i < 45; i++) outP += `<circle cx="${430 + R() * 120}" cy="${85 + R() * 110}" r="${2.5 + R() * 2.5}" fill="#FFB547"/>`;
+return `<svg viewBox="0 0 580 270" xmlns="http://www.w3.org/2000/svg">
+<rect x="4" y="60" width="130" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>
+<circle cx="40" cy="95" r="20" fill="#FFB547"/><circle cx="95" cy="120" r="24" fill="#FFB547"/><circle cx="50" cy="170" r="18" fill="#FFB547"/><circle cx="105" cy="180" r="14" fill="#FFB547"/>
+<rect x="150" y="40" width="250" height="190" rx="18" fill="#1A2E4F" stroke="${steel}" stroke-width="6"/>
+<path d="M134 135 H170 L250 80 H290 M170 135 L250 190 H290 M290 80 L330 135 M290 190 L330 135 H416" fill="none" stroke="#041024" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+<path d="M134 135 H170 L250 80 H290 L330 135 M170 135 L250 190 H290 L330 135 H416" fill="none" stroke="#FFB547" stroke-width="6" stroke-linejoin="round" class="ion-flow"/>
+<circle cx="330" cy="135" r="16" fill="#FFB547" opacity=".35" class="heat"/>
+<rect x="416" y="60" width="150" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${outP}
+<text x="275" y="30" text-anchor="middle" fill="#FFCD7A" font-size="20" font-weight="900" font-family="'Pretendard Variable',Pretendard,sans-serif">Y-Type Chamber</text>
+</svg>`;
+}
+function processSVG(kind) {
+const arrow = `<path d="M160 100 h40" stroke="#fff" stroke-width="5" stroke-linecap="round"/><path d="M192 88 l12 12 l-12 12" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>`;
+const box = (x) => `<rect x="${x}" y="20" width="140" height="160" rx="16" fill="rgba(26,134,201,.3)" stroke="#3FD8FF" stroke-width="2"/>`;
+const R = rng(kind.length * 7);
+let a = '', b = '';
+if (kind === 'disp') {
+a = clusterSVG(55, 70, 26, '#8FA3C4', 2) + clusterSVG(100, 135, 30, '#8FA3C4', 5);
+for (let i = 0; i < 55; i++) b += `<circle cx="${230 + R() * 120}" cy="${32 + R() * 136}" r="${3 + R() * 1.6}" fill="#8FA3C4"/>`;
+} else if (kind === 'emul') {
+a = `<rect x="12" y="20" width="140" height="58" rx="16" fill="#FFB547" opacity=".85"/><circle cx="60" cy="140" r="20" fill="#FFB547"/><circle cx="110" cy="120" r="14" fill="#FFB547"/>`;
+for (let i = 0; i < 60; i++) b += `<circle cx="${230 + R() * 120}" cy="${32 + R() * 136}" r="${2.5 + R() * 2}" fill="#FFB547"/>`;
+} else {
+a = `<ellipse cx="82" cy="100" rx="50" ry="40" fill="rgba(155,135,255,.3)" stroke="#9B87FF" stroke-width="5"/><circle cx="82" cy="100" r="14" fill="#9B87FF"/><circle cx="58" cy="86" r="5" fill="#3FD8FF"/><circle cx="104" cy="114" r="5" fill="#3FD8FF"/><circle cx="102" cy="82" r="4" fill="#3FD8FF"/>`;
+b = `<path d="M240 70 q10 -20 25 -6" stroke="#9B87FF" stroke-width="5" fill="none"/><path d="M320 140 q14 10 -2 24" stroke="#9B87FF" stroke-width="5" fill="none"/><path d="M330 60 q-16 -6 -10 18" stroke="#9B87FF" stroke-width="5" fill="none"/><path d="M250 150 q-8 -18 12 -18" stroke="#9B87FF" stroke-width="5" fill="none"/>`;
+for (let i = 0; i < 26; i++) b += `<circle cx="${236 + R() * 110}" cy="${40 + R() * 120}" r="${3 + R() * 2.5}" fill="#3FD8FF"/>`;
+}
+return `<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg"><g transform="translate(-0,0)">${box(12)}${a}${arrow}${box(222)}${b}</g></svg>`;
+}
+/* ===== 콘텐츠 데이터 (출처: suflux.com 고압분산기 페이지) ===== */
+const CH_DATA = [
+{ kind: 'z', color: '#FF6B6B', icon: '🟥', title: { ko: 'Z Type 챔버', en: 'Z Type Chamber' }, sub: { ko: '분말을 액상에 분산·분쇄하는 Suspension 공정', en: 'Suspension — dispersing powder into liquid' },
+items: [
+{ k: { ko: '공정', en: 'Process' }, v: { ko: 'Suspension (현탁 분산 · 분쇄)', en: 'Suspension (dispersion &amp; milling)' } },
+{ k: { ko: '시료', en: 'Sample' }, v: { ko: '분말(Powder) → 액상', en: 'Powder into liquid' } },
+{ k: { ko: '적용 소재', en: 'Materials' }, v: { ko: 'CNT, Aluminum 등', en: 'CNT, aluminum and more' } },
+{ k: { ko: '적용 모델', en: 'Models' }, v: { ko: '전 모델 (NLM100 ~ NH8000)', en: 'All models (NLM100 – NH8000)' } }
+] },
+{ kind: 'y', color: '#FFB547', icon: '🟨', title: { ko: 'Y Type 챔버', en: 'Y Type Chamber' }, sub: { ko: '액상과 액상 사이를 분산·분쇄하는 Emulsion 공정', en: 'Emulsion — liquid-to-liquid dispersion' },
+items: [
+{ k: { ko: '공정', en: 'Process' }, v: { ko: 'Emulsion (유화)', en: 'Emulsion' } },
+{ k: { ko: '시료', en: 'Sample' }, v: { ko: '액상 ↔ 액상', en: 'Liquid ↔ liquid' } },
+{ k: { ko: '적용 예', en: 'Examples' }, v: { ko: '우유, 물과 기름의 혼합', en: 'Milk, mixing water and oil' } },
+{ k: { ko: '적용 모델', en: 'Models' }, v: { ko: 'NH2000 · NH4000 · NH8000', en: 'NH2000 · NH4000 · NH8000' } }
+] }
+];
+const PROC_DATA = [
+{ kind: 'disp', badge: { ko: '분산 및 균질', en: 'Dispersion &amp; Homogenization' },
+title: { ko: '뭉친 입자를 고르게', en: 'Break up agglomerates' },
+desc: { ko: '뭉쳐 있는 분말을 고압으로 좁은 챔버에 통과시켜 잘게 나누고, 액상 전체에 <b>균일하게 분산</b>합니다.', en: 'Agglomerated powder is forced through a narrow chamber at high pressure, broken down and <b>dispersed uniformly</b> through the liquid.' },
+tags: { ko: ['Z Type', 'CNT · 금속 분말', '안료 · 전자 소재'], en: ['Z Type', 'CNT · metal powder', 'Pigments · electronics'] } },
+{ kind: 'emul', badge: { ko: '에멀전', en: 'Emulsion' },
+title: { ko: '섞이지 않는 액체를 하나로', en: 'Blend what won\'t mix' },
+desc: { ko: '물과 기름처럼 섞이지 않는 액체의 액적을 <b>미세하게 쪼개 안정적인 에멀전</b>을 만듭니다. 화장품 원료·에멀젼 공정에 적용됩니다.', en: 'Droplets of immiscible liquids such as water and oil are <b>split finely into a stable emulsion</b> — used for cosmetic ingredients and emulsions.' },
+tags: { ko: ['Y Type', '화장품 에멀젼', '리포좀 형성'], en: ['Y Type', 'Cosmetic emulsions', 'Liposomes'] } },
+{ kind: 'cell', badge: { ko: '세포벽 파괴', en: 'Cell Disruption' },
+title: { ko: '세포 속 성분을 꺼내다', en: 'Release what\'s inside' },
+desc: { ko: '고압의 순간적인 전단력으로 <b>세포벽을 파괴</b>해 내부의 유용 성분을 추출합니다. 식품·의약품·바이오 공정에 활용됩니다.', en: 'Instant high-pressure shear <b>ruptures cell walls</b> to release valuable contents — for food, pharma and bio processes.' },
+tags: { ko: ['미생물 · 세포', '성분 추출', '의약품 · 바이오'], en: ['Microbes · cells', 'Extraction', 'Pharma · bio'] } }
+];
+const APP_DATA = {
+cnt: { e: '🧬', img: 'assets/img/cnt.jpg', tab: { ko: 'CNT · 나노 분말', en: 'CNT &amp; Nano Powders' },
+title: { ko: '🧬 CNT · 나노 분말 분산', en: '🧬 CNT &amp; Nano Powder Dispersion' },
+lead: { ko: '서로 엉겨 붙기 쉬운 CNT와 같은 나노 분말을 액상에 고르게 풀어주는 Suspension 공정입니다. Z Type 챔버가 분말을 분산·분쇄합니다.', en: 'Suspension processing that evenly disperses easily entangled nano powders such as CNT into liquid, using the Z Type chamber to disperse and mill.' },
+checks: { ko: ['뭉친 나노 분말을 잘게 풀어 균일한 분산액 제조', 'Back Flushing으로 챔버 막힘 시 빠른 세척', '1,500 bar 고압으로 반복 처리'], en: ['Breaks up agglomerated nano powder into uniform dispersions', 'Back Flushing clears clogged chambers quickly', 'Repeat passes at 1,500 bar'] },
+pills: { ko: ['Z Type 챔버', 'Suspension', '사용 압력 1,500 bar'], en: ['Z Type chamber', 'Suspension', '1,500 bar'] },
+items: [
+{ e: '🧵', n: { ko: 'CNT 분산액', en: 'CNT dispersions' }, s: { ko: '탄소나노튜브 분산', en: 'Carbon nanotubes' } },
+{ e: '🔩', n: { ko: '금속 분말', en: 'Metal powder' }, s: { ko: 'Aluminum 등', en: 'Aluminum and more' } },
+{ e: '🔋', n: { ko: '전자 소재 슬러리', en: 'Electronic slurries' }, s: { ko: '나노 소재 분산', en: 'Nano material dispersion' } },
+{ e: '⚫', n: { ko: '탄소 소재', en: 'Carbon materials' }, s: { ko: '나노 분말 분쇄', en: 'Nano powder milling' } }
+] },
+elec: { e: '🔬', img: 'assets/img/graphene.jpg', tab: { ko: '전자 소재 · 화학', en: 'Electronics &amp; Chemicals' },
+title: { ko: '🔬 전자 소재 · 화학 · 안료', en: '🔬 Electronics, Chemicals &amp; Pigments' },
+lead: { ko: '전자 소재, 화학, 안료·염료 산업에서 유화·분산·파쇄 공정에 쓰입니다. 스테인리스 스틸 재질로 화학 물질에 대한 내식성이 우수합니다.', en: 'Used for emulsifying, dispersing and milling in electronic materials, chemicals, pigments and dyes. Stainless steel construction resists corrosive chemicals.' },
+checks: { ko: ['안료·염료 입자를 미세하고 균일하게', '스테인리스 스틸 재질로 우수한 내식성', '유압·냉각 시스템으로 장시간 연속 운전 (NH 시리즈)'], en: ['Fine, uniform pigment and dye particles', 'Stainless steel for corrosion resistance', 'Hydraulic &amp; cooling systems for long continuous runs (NH series)'] },
+pills: { ko: ['유화 · 분산 · 파쇄', '내식성 스테인리스', '연속 운전'], en: ['Emulsify · disperse · mill', 'Stainless steel', 'Continuous operation'] },
+items: [
+{ e: '🎨', n: { ko: '안료 · 염료', en: 'Pigments &amp; dyes' }, s: { ko: '색상 균일도 향상', en: 'Even color' } },
+{ e: '🔲', n: { ko: '전자 소재', en: 'Electronic materials' }, s: { ko: '나노 소재 분산', en: 'Nano dispersion' } },
+{ e: '⚗️', n: { ko: '화학', en: 'Chemicals' }, s: { ko: '유화 · 분산 공정', en: 'Emulsify &amp; disperse' } },
+{ e: '🧪', n: { ko: '연구 소재', en: 'Research materials' }, s: { ko: '소형 장비로 시험', en: 'Lab-scale trials' } }
+] },
+cos: { e: '💄', img: 'assets/img/molecule.jpg', tab: { ko: '화장품', en: 'Cosmetics' },
+title: { ko: '💄 화장품 원료 · 에멀젼', en: '💄 Cosmetic Ingredients &amp; Emulsions' },
+lead: { ko: '일신오토클레이브의 초고압 분산 기술은 화장품 원료 처리와 에멀젼 공정에 적용되고 있습니다. 미세하고 고른 액적으로 더 높은 품질의 화장품 생산에 기여합니다.', en: 'Our ultra-high pressure technology is applied to cosmetic ingredient processing and emulsions, helping produce higher-quality products with fine, even droplets.' },
+checks: { ko: ['물과 기름을 미세 액적으로 유화 (Y Type)', '리포좀(Liposome) 형성', '챔버 통과 후 열 영향을 최소화해 시료 손상 방지'], en: ['Emulsifies water and oil into fine droplets (Y Type)', 'Liposome formation', 'Minimizes heat after the chamber to protect samples'] },
+pills: { ko: ['Y Type 챔버', '에멀전', '리포좀'], en: ['Y Type chamber', 'Emulsion', 'Liposomes'] },
+items: [
+{ e: '🧴', n: { ko: '크림 · 로션', en: 'Creams &amp; lotions' }, s: { ko: '에멀젼 공정', en: 'Emulsions' } },
+{ e: '💧', n: { ko: '나노 에멀전', en: 'Nano emulsions' }, s: { ko: '미세 액적 유화', en: 'Fine droplets' } },
+{ e: '🫧', n: { ko: '리포좀', en: 'Liposomes' }, s: { ko: '유효 성분 캡슐화', en: 'Encapsulation' } },
+{ e: '🌿', n: { ko: '기능성 원료', en: 'Active ingredients' }, s: { ko: '원료 미립화', en: 'Micronization' } }
+] },
+food: { e: '🥛', img: '', tab: { ko: '식품 · 의약품', en: 'Food &amp; Pharma' },
+title: { ko: '🥛 식품 · 의약품 · 바이오', en: '🥛 Food, Pharma &amp; Bio' },
+lead: { ko: '유체의 세포 파괴, 미립화, 유화와 리포좀 형성으로 농도를 고르게 만드는 균질화 공정입니다. 식품과 의약품 산업 전반에 적용됩니다.', en: 'Homogenization through cell disruption, micronization, emulsification and liposome formation — applied across food and pharmaceutical industries.' },
+checks: { ko: ['우유처럼 액상 간 균질화', '세포벽 파괴로 내부 성분 추출', '의약품 리포좀 · 미립화'], en: ['Liquid–liquid homogenization, as in milk', 'Cell disruption to extract contents', 'Pharmaceutical liposomes &amp; micronization'] },
+pills: { ko: ['균질화', '세포벽 파괴', 'Lab ~ 양산'], en: ['Homogenization', 'Cell disruption', 'Lab to production'] },
+items: [
+{ e: '🥛', n: { ko: '유제품 · 음료', en: 'Dairy &amp; beverages' }, s: { ko: '균질화', en: 'Homogenization' } },
+{ e: '🦠', n: { ko: '미생물 · 세포', en: 'Microbes &amp; cells' }, s: { ko: '세포벽 파괴', en: 'Cell disruption' } },
+{ e: '💊', n: { ko: '의약품', en: 'Pharmaceuticals' }, s: { ko: '리포좀 · 미립화', en: 'Liposomes' } },
+{ e: '🍯', n: { ko: '식품 소재', en: 'Food ingredients' }, s: { ko: '유화 · 분산', en: 'Emulsify &amp; disperse' } }
+] }
+};
+const APP_ORDER = ['cnt', 'elec', 'cos', 'food'];
+let activeApp = 'cnt';
+const SPEC = {
+cols: ['NLM100', 'NH500', 'NH2000', 'NH4000', 'NH8000'],
+rows: [
+{ k: { ko: '사용 압력', en: 'Operating pressure' }, v: ['1,500 bar', '1,500 bar', '1,500 bar', '1,500 bar', '1,500 bar'] },
+{ k: { ko: '최대 유량', en: 'Max. flow rate' }, v: ['100 mL/min', '500 mL/min', '2 L/min', '4 L/min', '8 L/min'] },
+{ k: { ko: '펌프 방식', en: 'Pump system' }, v: [{ ko: '모터 구동식<small>220VAC, 1PH, 60㎐</small>', en: 'Motor driven<small>220VAC, 1PH, 60Hz</small>' }, { ko: '유압 유닛<small>7.5 HP</small>', en: 'Hydraulic unit<small>7.5 HP</small>' }, { ko: '유압 유닛<small>30 HP</small>', en: 'Hydraulic unit<small>30 HP</small>' }, { ko: '유압 유닛<small>40 HP</small>', en: 'Hydraulic unit<small>40 HP</small>' }, { ko: '유압 유닛<small>50 HP</small>', en: 'Hydraulic unit<small>50 HP</small>' }] },
+{ k: { ko: '중량', en: 'Weight' }, v: ['약 45 kg', '약 600 kg', '1,200 kg', '2,000 kg', '2,500 kg'] },
+{ k: { ko: '크기 (W×D×H, mm)', en: 'Size (W×D×H, mm)' }, v: ['583 × 576 × 435', '850 × 800 × 1,500', '2,350 × 1,000 × 2,100', '2,350 × 1,000 × 2,100', '3,100 × 1,100 × 2,100'] },
+{ k: { ko: '챔버 크기', en: 'Chamber size' }, v: ['75 ㎛', '100 ㎛', '400 ㎛ / 100 ㎛', '400 ㎛ / 100 ㎛', '400 ㎛ / 100 ㎛'] },
+{ k: { ko: '챔버 타입', en: 'Chamber type' }, v: ['Z Type', 'Z Type', 'Z / Y Type', 'Z / Y Type', 'Z / Y Type'] }
+]
+};
+const EQUIP_DATA = [
+{ key: 'NLM100', col: 0, img: 'assets/img/nlm100.webp', tag: { ko: '소형 · Lab', en: 'Compact · Lab' }, name: 'NLM100',
+desc: { ko: 'PCB 제어와 모터 속도 조절로 압력·유량을 맞추는 컴팩트 연구용 장비. 이동과 운반이 쉽습니다.', en: 'Compact lab unit with PCB control; motor speed sets pressure and flow. Easy to move.' } },
+{ key: 'NH500', col: 1, img: 'assets/img/nh500.webp', tag: { ko: '중형 · 파일럿', en: 'Mid-size · Pilot' }, name: 'NH500',
+desc: { ko: '유압·냉각 시스템을 기본 적용해 장시간 연속 운전이 가능한 파일럿 라인용 장비. 스테인리스 스틸로 내식성 우수.', en: 'Hydraulic and cooling systems for long continuous runs on pilot lines; stainless steel for corrosion resistance.' } },
+{ key: 'NH8000', col: 4, img: 'assets/img/nh8000.webp', tag: { ko: '대형 · 양산', en: 'Large · Production' }, name: 'NH8000',
+desc: { ko: '최대 8 L/min 대용량 양산 설비. NH2000 · NH4000 · NH8000 NH 시리즈로 생산 규모에 맞춰 선택합니다.', en: 'Up to 8 L/min for mass production. Choose NH2000, NH4000 or NH8000 by production scale.' } }
+];
+let activeEquip = 1;
+const FEATURES = [
+{ e: '🔀', t: { ko: '챔버 타입 선택', en: 'Chamber choice' }, s: { ko: 'Z · Y Type', en: 'Z · Y Type' } },
+{ e: '🚿', t: { ko: '편리한 세척', en: 'Easy cleaning' }, s: { ko: 'Back Flushing', en: 'Back flushing' } },
+{ e: '🌡️', t: { ko: '시료 손상 방지', en: 'Sample protection' }, s: { ko: '챔버 후 열 영향 최소화', en: 'Minimal heat after chamber' } },
+{ e: '🛡️', t: { ko: '안전 설계', en: 'Safety housing' }, s: { ko: '배관 외부 케이스', en: 'Enclosed piping' } },
+{ e: '🎛️', t: { ko: '압력 정밀 조절', en: 'Precise pressure' }, s: { ko: '유압 유닛 제어', en: 'Hydraulic control' } },
+{ e: '💧', t: { ko: '오픈형 물탱크', en: 'Open water tank' }, s: { ko: '사용량 확인 편리', en: 'Easy level check' } }
+];
+const VIDEO_DATA = [
+{ src: 'assets/video/production_chamber.mp4', t: { ko: '🏭 대형 양산형 — Z · Y 챔버 구조', en: '🏭 Production unit — Z · Y chambers' },
+cap: { ko: 'NH 시리즈 내부: 시료가 Z Type · Y Type 챔버를 지나며 분산됩니다.', en: 'Inside the NH series: samples are dispersed through Z Type and Y Type chambers.' } },
+{ src: 'assets/video/lab_chamber.mp4', t: { ko: '🧪 소형 Lab — 시료 탱크 · Z 챔버', en: '🧪 Lab unit — sample tank · Z chamber' },
+cap: { ko: '소형 장비: 시료 탱크의 시료가 Z Type 챔버를 통과하며 미립화되어 배출됩니다.', en: 'Lab unit: sample from the tank passes the Z Type chamber and exits micronized.' } }
+];
+let activeVideo = 0;
+/* =========================================================
+렌더링
+========================================================= */
+function renderChambers() {
+document.getElementById('chGrid').innerHTML = CH_DATA.map(c => `
+<div class="cmp-card glass good" style="border-color:${c.color}88; box-shadow:0 0 40px ${c.color}22;">
+<div class="cmp-head"><div class="ic" style="background:${c.color}2e">${c.kind === 'z' ? '⚡' : '💧'}</div><div><h4 style="color:${c.color}">${L(c.title)}</h4><small>${L(c.sub)}</small></div></div>
+<div class="cmp-svg">${chamberSVG(c.kind)}</div>
+<div class="cmp-list">${c.items.map(i => `
+<div class="cmp-item"><div class="b" style="background:${c.color};color:#1a0a00">✓</div><div><small>${L(i.k)}</small><span>${L(i.v)}</span></div></div>`).join('')}
+</div>
+</div>`).join('');
+}
+function renderProcesses() {
+document.getElementById('procGrid').innerHTML = PROC_DATA.map(p => `
+<div class="proc-card glass">
+<span class="why-badge" style="background:var(--cyan);color:#021022;">${L(p.badge)}</span>
+<h4 style="margin-top:14px;font-size:31px;font-weight:900;">${L(p.title)}</h4>
+<div class="why-svg" style="margin:16px 0 18px;">${processSVG(p.kind)}</div>
+<p style="font-size:23px;line-height:1.55;color:var(--white-dim);font-weight:500;">${L(p.desc).replace(/<b>/g, '<b style="color:var(--cyan-b)">')}</p>
+<div class="proc-tags">${L(p.tags).map(t => `<span>${t}</span>`).join('')}</div>
+</div>`).join('');
+}
+function renderApp() {
+document.getElementById('appTabs').innerHTML = APP_ORDER.map(k => `
+<button class="app-tab ${k === activeApp ? 'active' : ''}" onclick="switchApp('${k}')"><span class="e">${APP_DATA[k].e}</span><span>${L(APP_DATA[k].tab)}</span></button>`).join('');
+const a = APP_DATA[activeApp];
+const ph = document.getElementById('appPhoto');
+ph.style.backgroundImage = a.img ? `url('${a.img}')` : 'radial-gradient(600px 400px at 50% 35%, rgba(63,216,255,0.28), transparent 70%), radial-gradient(500px 300px at 20% 80%, rgba(155,135,255,0.25), transparent 70%), #071833';
+ph.innerHTML = `${a.img ? '' : `<div style="position:absolute;top:22%;left:0;right:0;text-align:center;font-size:150px;">${a.e}</div>`}
+<div class="ph-items">${a.items.map(i => `<div class="ph-item"><span class="e">${i.e}</span><div><div class="n">${L(i.n)}</div><div class="s">${L(i.s)}</div></div></div>`).join('')}</div>`;
+document.getElementById('appHero').innerHTML = `
+<h3>${L(a.title)}</h3>
+<p class="lead">${L(a.lead)}</p>
+<div class="app-checks">${L(a.checks).map(c => `<div class="app-check"><span class="c">✓</span><span>${c}</span></div>`).join('')}</div>
+<div class="app-pills">${L(a.pills).map(p => `<span class="app-pill">${p}</span>`).join('')}</div>`;
+}
+function switchApp(k) { activeApp = k; renderApp(); }
+function specVal(rowIdx, col) { return L(SPEC.rows[rowIdx].v[col]); }
+function renderEquip() {
+document.getElementById('equipRow').innerHTML = EQUIP_DATA.map((e, i) => `
+<div class="equip-card glass ${i === activeEquip ? 'active' : ''}" onclick="selectEquip(${i})">
+<div class="equip-ill photo"><img src="${e.img}" alt="${e.name}" loading="lazy" decoding="async"></div>
+<div class="equip-body">
+<div class="row1"><span class="nm">${e.name}</span><span class="tag">${L(e.tag)}</span></div>
+<div class="ds">${L(e.desc)}</div>
+</div>
+</div>`).join('');
+const e = EQUIP_DATA[activeEquip];
+document.getElementById('eqHudName').textContent = e.name;
+document.getElementById('equipTiles').innerHTML = SPEC.rows.filter((r, i) => i !== 0).map((r, i) =>
+`<div class="equip-tile"><div class="k">${L(r.k)}</div><div class="v">${specVal(i + 1, e.col)}</div></div>`).join('');
+document.getElementById('equipFeatures').innerHTML = FEATURES.map(f => `<div class="feat"><span class="e">${f.e}</span><span class="t">${L(f.t)}<small>${L(f.s)}</small></span></div>`).join('');
+}
+function selectEquip(i) { activeEquip = i; renderEquip(); }
+function openModal(title, html, wide) {
+document.getElementById('modalTitle').innerHTML = title;
+const body = document.getElementById('modalBody');
+body.innerHTML = html; body.classList.add('single');
+document.getElementById('modalWindow').classList.toggle('wide', !!wide);
+document.getElementById('infoModal').classList.add('open');
+}
+function closeModal() { document.getElementById('infoModal').classList.remove('open'); }
+function openSpecModal() {
+const en = currentLang === 'en';
+const hi = EQUIP_DATA[activeEquip].col;
+const html = `<table class="spec-table">
+<thead><tr><th>${en ? 'Series' : '모델'}</th>${SPEC.cols.map((c, i) => `<th style="${i === hi ? 'color:#fff;background:rgba(63,216,255,0.3)' : ''}">${c}</th>`).join('')}</tr></thead>
+<tbody>${SPEC.rows.map((r, ri) => `<tr><td>${L(r.k)}</td>${r.v.map((v, i) => `<td class="${i === hi ? 'hl' : ''}">${L(v)}</td>`).join('')}</tr>`).join('')}</tbody>
+</table>
+<p class="spec-note">${en ? '※ Size and weight may vary by process and options. Hydraulic units: 220 / 380 / 440 VAC, 50 / 60 Hz.' : '※ 사이즈 및 무게는 공정·옵션에 따라 변경될 수 있습니다. 유압 유닛 전원: 220 / 380 / 440 VAC, 50 / 60 ㎐'}</p>`;
+openModal(en ? '📋 Nano Disperser — Full Specifications' : '📋 고압분산기 전체 모델 제원표', html, true);
+}
+function renderVideoPills() {
+document.getElementById('videoPills').innerHTML = VIDEO_DATA.map((v, i) =>
+`<button class="video-pill ${i === activeVideo ? 'active' : ''}" onclick="switchVideo(${i})">${L(v.t)}</button>`).join('');
+document.getElementById('videoCaption').textContent = L(VIDEO_DATA[activeVideo].cap);
+}
+function switchVideo(i, autoplay = true) {
+activeVideo = i;
+const v = document.getElementById('cinemaVideo');
+if (!v.src.endsWith(VIDEO_DATA[i].src)) { v.src = VIDEO_DATA[i].src; v.load(); }
+renderVideoPills();
+if (autoplay) v.play().catch(() => {});
+}
+/* =========================================================
+네비게이션
+========================================================= */
+function switchNav(target) {
+document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.target === target));
+document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + target));
+document.getElementById('pageTitleDisplay').innerHTML = I18N[currentLang].page_title[target] || '';
+closeModal();
+const hv = document.getElementById('homeVideo');
+if (target === 'home') hv.play().catch(() => {}); else hv.pause();
+const cv = document.getElementById('cinemaVideo');
+if (target === 'video') { if (!cv.src) switchVideo(activeVideo); else cv.play().catch(() => {}); } else cv.pause();
+if (target === 'tech') requestAnimationFrame(sim.resize);
+resetIdleTimer();
+}
+function switchTechSegment(seg, btn) {
+document.querySelectorAll('.segment-btn').forEach(b => b.classList.toggle('active', b === btn));
+document.querySelectorAll('#panel-tech .subview').forEach(v => v.classList.toggle('active', v.id === 'sub-' + seg));
+if (seg === 'sim') requestAnimationFrame(sim.resize);
+}
+/* =========================================================
+분산 시뮬레이터 (개념 시각화)
+========================================================= */
+let simPressure = 1500, simChamber = 'z';
+const sim = (() => {
+const cv = document.getElementById('simCanvas');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, ins = [], outs = [], d = 1, spawnT = 0;
+const R0 = 15;
+const geo = () => {
+const yc = H * 0.56, ph = H * 0.46;
+return { yc, ph, xa: W * 0.33, xb: W * 0.63, top: yc - ph / 2, bot: yc + ph / 2 };
+};
+function chY(x, br) {
+const g = geo(); const t = (x - g.xa) / (g.xb - g.xa);
+if (simChamber === 'z') {
+const pts = [[0, 0], [0.15, 0], [0.35, -1], [0.55, 1], [0.75, -1], [0.88, 0], [1, 0]];
+for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const a = pts[i - 1], b = pts[i]; const u = (t - a[0]) / (b[0] - a[0]); return g.yc + (a[1] + (b[1] - a[1]) * u) * g.ph * 0.28; }
+return g.yc;
+}
+const s = br ? 1 : -1;
+if (t < 0.12) return g.yc + s * g.ph * 0.3 * (t / 0.12);
+if (t < 0.5) return g.yc + s * g.ph * 0.3;
+if (t < 0.7) return g.yc + s * g.ph * 0.3 * (1 - (t - 0.5) / 0.2);
+return g.yc;
+}
+function resize() {
+const w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
+if (!w || !h) return;
+if (w !== W || h !== H) { W = cv.width = w; H = cv.height = h; ins = []; outs = []; }
+}
+function spawn() {
+const g = geo();
+ins.push({ x: -20, y: g.top + R0 + Math.random() * (g.ph - R0 * 2), br: Math.random() < 0.5 ? 0 : 1, seed: Math.random() * 1000 });
+}
+function drawCluster(x, y, r, seed, color) {
+const R = rng(Math.floor(seed));
+ctx.fillStyle = color;
+for (let i = 0; i < 6; i++) { const a = R() * 6.28, dd = R() * r * 0.55; ctx.beginPath(); ctx.arc(x + Math.cos(a) * dd, y + Math.sin(a) * dd, r * (0.38 + R() * 0.15), 0, 6.28); ctx.fill(); }
+}
+function draw() {
+requestAnimationFrame(draw);
+if (!document.getElementById('panel-tech').classList.contains('active') || !document.getElementById('sub-sim').classList.contains('active') || document.hidden) return;
+if (!W) { resize(); if (!W) return; }
+const g = geo(); const pN = simPressure / 1500;
+const target = Math.pow(pN, 0.8);
+d += (target - d) * 0.06;
+const isZ = simChamber === 'z';
+const pc = isZ ? '#8FA3C4' : '#FFB547';
+const speedIn = simPressure > 0 ? 1.3 + 1.2 * pN : 0;
+ctx.fillStyle = '#041024'; ctx.fillRect(0, 0, W, H);
+// 배관 (유체)
+const pipeG = ctx.createLinearGradient(0, g.top, 0, g.bot);
+pipeG.addColorStop(0, 'rgba(26,134,201,0.32)'); pipeG.addColorStop(1, 'rgba(26,134,201,0.18)');
+ctx.fillStyle = pipeG;
+ctx.fillRect(0, g.top, g.xa, g.ph); ctx.fillRect(g.xb, g.top, W - g.xb, g.ph);
+ctx.strokeStyle = 'rgba(141,235,255,0.45)'; ctx.lineWidth = 2;
+[[0, g.xa], [g.xb, W]].forEach(([a, b]) => { ctx.beginPath(); ctx.moveTo(a, g.top); ctx.lineTo(b, g.top); ctx.moveTo(a, g.bot); ctx.lineTo(b, g.bot); ctx.stroke(); });
+// 챔버 블록
+const bTop = g.yc - g.ph * 0.62, bH = g.ph * 1.24;
+const sg = ctx.createLinearGradient(0, bTop, 0, bTop + bH);
+sg.addColorStop(0, '#5D6F8C'); sg.addColorStop(0.5, '#9FB1CA'); sg.addColorStop(1, '#46566F');
+ctx.fillStyle = sg; roundRect(g.xa, bTop, g.xb - g.xa, bH, 18); ctx.fill();
+// 채널
+const chPath = (br) => { ctx.beginPath(); for (let x = g.xa; x <= g.xb; x += 3) { const y = chY(x, br); x === g.xa ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } };
+const chCol = isZ ? '255,107,107' : '255,181,71';
+[0, 1].slice(0, isZ ? 1 : 2).forEach(br => {
+chPath(br); ctx.strokeStyle = '#041024'; ctx.lineWidth = 22; ctx.lineJoin = 'round'; ctx.stroke();
+chPath(br); ctx.strokeStyle = `rgba(${chCol},${0.25 + 0.7 * pN})`; ctx.lineWidth = 8; ctx.shadowColor = `rgb(${chCol})`; ctx.shadowBlur = 18 * pN; ctx.stroke(); ctx.shadowBlur = 0;
+});
+if (!isZ) { const cx = g.xa + (g.xb - g.xa) * 0.7; ctx.beginPath(); ctx.arc(cx, g.yc, 10 + 14 * pN, 0, 6.28); ctx.fillStyle = `rgba(255,181,71,${0.15 + 0.4 * pN})`; ctx.fill(); }
+// 출구 제트
+if (pN > 0) {
+const jg = ctx.createLinearGradient(g.xb, 0, g.xb + 260 * pN, 0);
+jg.addColorStop(0, `rgba(${chCol},${0.55 * pN})`); jg.addColorStop(1, `rgba(${chCol},0)`);
+ctx.fillStyle = jg; ctx.beginPath(); ctx.moveTo(g.xb, g.yc - 6); ctx.lineTo(g.xb + 260 * pN, g.yc - 60 * pN); ctx.lineTo(g.xb + 260 * pN, g.yc + 60 * pN); ctx.lineTo(g.xb, g.yc + 6); ctx.fill();
+}
+// 입자 생성·이동
+if (speedIn > 0) { spawnT += speedIn; if (spawnT > 22) { spawnT = 0; if (ins.length < 40) spawn(); } }
+for (let i = ins.length - 1; i >= 0; i--) {
+const p = ins[i];
+if (p.x < g.xa - R0) {
+p.x += speedIn;
+const ty = isZ ? g.yc : g.yc + (p.br ? 1 : -1) * g.ph * 0.3;
+if (p.x > g.xa - 150) p.y += (ty - p.y) * 0.06 * (speedIn > 0 ? 1 : 0);
+if (isZ) drawCluster(p.x, p.y, R0, p.seed, pc);
+else { ctx.beginPath(); ctx.arc(p.x, p.y, R0 * 0.9, 0, 6.28); ctx.fillStyle = pc; ctx.fill(); }
+} else {
+p.x += speedIn * 3.2;
+if (p.x >= g.xb) {
+// 쪼개짐
+const k = Math.round(1 + 7 * d), rOut = R0 * (1 - 0.8 * d);
+for (let j = 0; j < k; j++) outs.push({ x: g.xb + Math.random() * 6, y: g.yc + (Math.random() - .5) * 8, vx: 1.2 + speedIn * (0.8 + Math.random() * 0.6), vy: (Math.random() - .5) * (1.2 + 1.8 * pN), r: Math.max(2.2, rOut * (1 + (Math.random() - .5) * 1.1 * (1 - d))), seed: p.seed + j, cl: d < 0.35 });
+ins.splice(i, 1); continue;
+}
+const y = chY(p.x, p.br);
+ctx.beginPath(); ctx.arc(p.x, y, 6, 0, 6.28); ctx.fillStyle = isZ ? '#C8D3E6' : '#FFD38A'; ctx.fill();
+}
+}
+for (let i = outs.length - 1; i >= 0; i--) {
+const o = outs[i];
+o.x += o.vx * (speedIn > 0 ? 1 : 0.0); o.y += o.vy * (speedIn > 0 ? 1 : 0); o.vy *= 0.985;
+if (o.y < g.top + o.r) { o.y = g.top + o.r; o.vy *= -0.5; }
+if (o.y > g.bot - o.r) { o.y = g.bot - o.r; o.vy *= -0.5; }
+if (o.x > W + 20) { outs.splice(i, 1); continue; }
+if (isZ && o.cl && o.r > 6) drawCluster(o.x, o.y, o.r, o.seed, pc);
+else { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, 6.28); ctx.fillStyle = pc; ctx.fill(); }
+}
+if (outs.length > 420) outs.splice(0, outs.length - 420);
+// 라벨
+const en = currentLang === 'en';
+ctx.font = '800 19px "Pretendard Variable", Pretendard, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+ctx.fillStyle = 'rgba(255,255,255,0.8)';
+ctx.fillText(en ? 'Feed (inlet)' : '시료 투입', g.xa / 2, g.bot + 30);
+ctx.fillText(en ? 'Output (dispersed)' : '분산 배출', (g.xb + W) / 2, g.bot + 30);
+ctx.fillStyle = isZ ? '#FF8A8A' : '#FFCD7A';
+ctx.fillText(isZ ? 'Z-Type Interaction Chamber' : 'Y-Type Interaction Chamber', (g.xa + g.xb) / 2, bTop - 18);
+if (simPressure === 0) {
+ctx.fillStyle = 'rgba(2,8,20,0.75)'; roundRect(W / 2 - 170, g.yc - 30, 340, 60, 16); ctx.fill();
+ctx.fillStyle = '#fff'; ctx.font = '800 22px "Pretendard Variable", Pretendard, sans-serif';
+ctx.fillText(en ? 'Pump stopped — raise the pressure' : '펌프 정지 — 압력을 올려 보세요', W / 2, g.yc);
+}
+ctx.textAlign = 'start';
+}
+function roundRect(x, y, w, h, r) {
+ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+window.addEventListener('resize', () => { W = 0; setTimeout(resize, 120); });
+requestAnimationFrame(draw);
+return { resize: () => { W = 0; resize(); }, clear: () => { ins = []; outs = []; } };
+})();
+const SIM_TEXT = {
+z: {
+ko: [['투입 전 · 뭉친 분말', '분말이 서로 뭉쳐 있어 액상에 고르게 퍼지지 않은 상태입니다.'], ['거친 분산', '덩어리가 일부 풀렸지만 큰 입자와 작은 입자가 섞여 있습니다.'], ['미립화 진행', '좁은 챔버의 강한 전단력으로 입자가 빠르게 작아지고 있습니다.'], ['나노 수준 분산', '뭉친 분말이 잘게 풀려 액상 전체에 고르게 분산됩니다.']],
+en: [['Agglomerated powder', 'Powder clumps together and is not spread through the liquid.'], ['Coarse dispersion', 'Some clumps break, but large and small particles are mixed.'], ['Refining', 'Strong shear in the narrow chamber rapidly shrinks particles.'], ['Nano-level dispersion', 'Agglomerates break down and disperse evenly through the liquid.']]
+},
+y: {
+ko: [['투입 전 · 분리된 액체', '물과 기름처럼 섞이지 않는 액체가 큰 방울로 나뉘어 있습니다.'], ['거친 유화', '액적이 작아지기 시작했지만 크기가 제각각입니다.'], ['미세 유화 진행', '두 흐름이 챔버에서 부딪히며 액적이 빠르게 작아집니다.'], ['나노 에멀전', '작고 고른 액적으로 안정적인 에멀전이 만들어집니다.']],
+en: [['Separated liquids', 'Immiscible liquids like water and oil sit as large droplets.'], ['Coarse emulsion', 'Droplets start shrinking but vary widely in size.'], ['Fine emulsifying', 'Two streams collide in the chamber and droplets shrink quickly.'], ['Nano emulsion', 'Small, even droplets form a stable emulsion.']]
+}
+};
+const CH_TEXT = {
+ko: { z: '<b style="color:#FF8A8A">Z Type</b> — 분말을 액상에 분산·분쇄하는 Suspension 공정. CNT, Aluminum 등에 적용됩니다.', y: '<b style="color:#FFCD7A">Y Type</b> — 두 흐름을 충돌시켜 액상끼리 분산하는 Emulsion 공정. 우유, 물과 기름 혼합에 적용됩니다.' },
+en: { z: '<b style="color:#FF8A8A">Z Type</b> — Suspension: disperses and mills powder into liquid. Used for CNT, aluminum and more.', y: '<b style="color:#FFCD7A">Y Type</b> — Emulsion: colliding streams disperse liquid into liquid, e.g. milk or water and oil.' }
+};
+function updateSimulator(val) {
+simPressure = Number(val);
+const slider = document.getElementById('pressureSlider');
+slider.value = simPressure;
+slider.style.setProperty('--fill', (simPressure / 15) + '%');
+document.getElementById('simPressure').innerHTML = simPressure.toLocaleString('en-US') + '<small>bar</small>';
+document.getElementById('simMpa').textContent = `${(simPressure / 10).toLocaleString('en-US')} MPa · ${simChamber === 'z' ? 'Z' : 'Y'} Type`;
+const d = Math.pow(simPressure / 1500, 0.8);
+const lvl = simPressure === 0 ? 0 : d < 0.5 ? 1 : d < 0.85 ? 2 : 3;
+const [v, ds] = SIM_TEXT[simChamber][currentLang][lvl];
+const hv = document.getElementById('hudStateVal');
+hv.textContent = v; hv.style.color = ['#FF6B6B', '#FFB547', '#8DEBFF', '#3FD8FF'][lvl];
+document.getElementById('hudStateDesc').textContent = ds;
+document.getElementById('hudSizeBar').style.width = Math.max(8, (1 - 0.85 * d) * 100) + '%';
+document.getElementById('hudUniBar').style.width = Math.max(8, (0.1 + 0.85 * d) * 100) + '%';
+document.getElementById('hudChDesc').innerHTML = CH_TEXT[currentLang][simChamber];
+const en = currentLang === 'en';
+document.getElementById('simLegend').innerHTML = simChamber === 'z'
+? `<span><i style="background:#8FA3C4"></i>${en ? 'Powder (e.g. CNT)' : '분말 (CNT 등)'}</span><span><i style="background:#1A86C9"></i>${en ? 'Liquid' : '액상'}</span>`
+: `<span><i style="background:#FFB547"></i>${en ? 'Oil droplets' : '기름 액적'}</span><span><i style="background:#1A86C9"></i>${en ? 'Water phase' : '물 (연속상)'}</span>`;
+document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick') === `setPresetPressure(${simPressure})`));
+}
+function setPresetPressure(v) { updateSimulator(v); }
+function setChamber(c) {
+simChamber = c;
+document.getElementById('btnZ').classList.toggle('active', c === 'z');
+document.getElementById('btnY').classList.toggle('active', c === 'y');
+sim.clear();
+updateSimulator(simPressure);
+}
+// 홈 배경 영상 반복 보조
+(function keepLoop() {
+['homeVideo', 'cinemaVideo'].forEach(id => {
+const v = document.getElementById(id);
+v.loop = true;
+v.addEventListener('ended', () => { try { v.currentTime = 0; } catch (e) {} v.play().catch(() => {}); });
+});
+})();
+/* =========================================================
+오시는 길
+========================================================= */
+let currentActiveLocKey = 'hq';
+let currentMapMode = 'offline';
+const LOCATION_MAPS = {
+hq: { name: { ko: '본사 · 제1공장', en: 'HQ &amp; Plant 1' }, road: { ko: '대전광역시 유성구 테크노2로 255', en: '255 Techno 2-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 탑립동 835', en: '835 Tamnip-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.419664,127.411491&t=&z=17&ie=UTF8&iwloc=&output=embed' },
+p2: { name: { ko: '제2공장', en: 'Plant 2' }, road: { ko: '대전광역시 유성구 갑천로 361-23, 25, 27', en: '361-23 Gapcheon-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 탑립동 933-7', en: '933-7 Tamnip-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.412754,127.414825&t=&z=17&ie=UTF8&iwloc=&output=embed' },
+p3: { name: { ko: '제3공장 · 기술연구소', en: 'Plant 3 &amp; R&amp;D Center' }, road: { ko: '대전광역시 유성구 국제과학로 12', en: '12 Gukjekwahak-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 신동 657-5', en: '657-5 Sin-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.475429,127.367854&t=&z=17&ie=UTF8&iwloc=&output=embed' }
+};
+// 영어 모드 약도 라벨 (긴 것부터 치환)
+const MAP_LABEL_EN = {
+'🏢 본사 · 제1공장': '🏢 HQ &amp; Plant 1',
+'🏭 제2공장': '🏭 Plant 2',
+'🔬 제3공장 · 기술연구소': '🔬 Plant 3 &amp; R&amp;D',
+'국제과학비즈니스벨트 신동지구': 'Sindong Science Belt',
+'IBS 중이온가속기연구소': 'IBS Rare Isotope Institute',
+'건설생활환경시험연구원': 'KCL Testing Institute',
+'대덕테크노밸리': 'Daedeok Techno Valley',
+'테크노중앙로': 'Techno Jungang-ro',
+'국제과학2로': 'Gukjegwahak 2-ro',
+'국제과학3로': 'Gukjegwahak 3-ro',
+'금남구즉로': 'Geumnam-Gujeuk-ro',
+'국제과학로': 'Gukjegwahak-ro',
+'테크노10로': 'Techno 10-ro',
+'테크노11로': 'Techno 11-ro',
+'탑립삼거리': 'Tamnip Jct.',
+'하이플럭스': 'Hiflux',
+'테크노2로': 'Techno 2-ro',
+'대전세관': 'Daejeon Customs',
+'배울1로': 'Baeul 1-ro',
+'갑천로': 'Gapcheon-ro',
+'신동천': 'Sindongcheon',
+'갑천': 'Gapcheon',
+'철도': 'Railway'
+};
+// 오프라인 약도 — 카카오맵 실제 도로 배치를 기준으로 단순화해 다시 그림 (2026-11)
+function mapFrame(id, inner, scaleW, scaleLabel) {
+return `
+<svg viewBox="0 0 540 320" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;" font-family="'Pretendard Variable', Pretendard, 'Malgun Gothic', sans-serif">
+<defs>
+<pattern id="grid${id}" width="22" height="22" patternUnits="userSpaceOnUse">
+<path d="M 22 0 L 0 0 0 22" fill="none" stroke="rgba(63,216,255,0.06)" stroke-width="1"/>
+</pattern>
+<radialGradient id="pinGlow${id}" cx="50%" cy="50%" r="50%">
+<stop offset="0%" stop-color="#3FD8FF" stop-opacity="0.9"/>
+<stop offset="100%" stop-color="#3FD8FF" stop-opacity="0"/>
+</radialGradient>
+</defs>
+<rect x="-40" y="-400" width="620" height="1120" fill="url(#grid${id})" />
+${inner}
+<g transform="translate(505, 36)">
+<circle cx="0" cy="0" r="15" fill="rgba(2,10,24,0.85)" stroke="rgba(63,216,255,0.4)"/>
+<polygon points="0,-11 4,4 0,0 -4,4" fill="#3FD8FF"/>
+<text x="-4.5" y="-14" fill="#3FD8FF" font-size="12" font-weight="800">N</text>
+</g>
+<g transform="translate(${530 - scaleW - 20}, 296)">
+<rect x="0" y="0" width="${scaleW + 20}" height="18" rx="4" fill="rgba(2,10,24,0.75)"/>
+<line x1="10" y1="12" x2="${scaleW + 10}" y2="12" stroke="#8DEBFF" stroke-width="2"/>
+<line x1="10" y1="8" x2="10" y2="15" stroke="#8DEBFF" stroke-width="2"/>
+<line x1="${scaleW + 10}" y1="8" x2="${scaleW + 10}" y2="15" stroke="#8DEBFF" stroke-width="2"/>
+<text x="${scaleW / 2 + 10}" y="9" text-anchor="middle" fill="#FFFFFF" font-size="9.5" font-weight="700">${scaleLabel}</text>
+</g>
+</svg>`;
+}
+// 도로: 큰길(main)은 두껍게 + 이름, 작은길(minor)은 얇게
+const mRoad = (d, w = 13) => `<path d="${d}" fill="none" stroke="#1F4E7A" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="${d}" fill="none" stroke="#5FB7FF" stroke-width="1.4" stroke-dasharray="7,7" stroke-linecap="round" opacity="0.55"/>`;
+const nRoad = (d, w = 7) => `<path d="${d}" fill="none" stroke="#173A5E" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const rLabel = (x, y, t, rot = 0, size = 14) => `<text x="${x}" y="${y}" fill="#FFFFFF" font-size="${size}" font-weight="800" text-anchor="middle" transform="rotate(${rot} ${x},${y})" paint-order="stroke" stroke="rgba(2,10,24,0.85)" stroke-width="4">${t}</text>`;
+const mark = (x, y, t, anchor = 'start') => `<text x="${x}" y="${y}" fill="rgba(255,255,255,0.55)" font-size="12.5" font-weight="600" text-anchor="${anchor}">${t}</text>`;
+const water = (d, lx, ly, t, rot = 0) => `<path d="${d}" fill="rgba(70,150,200,0.28)" stroke="rgba(120,190,230,0.35)" stroke-width="1"/>
+<text x="${lx}" y="${ly}" fill="rgba(160,215,245,0.85)" font-size="13" font-weight="700" text-anchor="middle" transform="rotate(${rot} ${lx},${ly})">${t}</text>`;
+const site = (id, rx, ry, rw, rh, px, py, bx, by, bw, label) => `
+<rect x="${rx}" y="${ry}" width="${rw}" height="${rh}" rx="4" fill="rgba(63,216,255,0.22)" stroke="#3FD8FF" stroke-width="2"/>
+<line x1="${px}" y1="${py}" x2="${bx + bw / 2}" y2="${by + (by < py ? 40 : 0)}" stroke="#3FD8FF" stroke-width="2" stroke-dasharray="3,3"/>
+<rect x="${bx}" y="${by}" width="${bw}" height="40" rx="10" fill="rgba(2,12,28,0.92)" stroke="#3FD8FF" stroke-width="2.5"/>
+<text x="${bx + bw / 2}" y="${by + 26}" fill="#3FD8FF" font-size="16" font-weight="800" text-anchor="middle">${label}</text>
+<circle cx="${px}" cy="${py}" r="30" fill="url(#pinGlow${id})"/>
+<circle cx="${px}" cy="${py}" r="12" fill="none" stroke="#3FD8FF" stroke-width="2"/>
+<circle cx="${px}" cy="${py}" r="6" fill="#EF5350" stroke="#FFFFFF" stroke-width="2"/>`;
+function renderOfflineMapSVG(key) {
+if (key === 'hq') {
+// 본사·제1공장: 테크노2로 255 — 테크노2로가 꺾이는 지점, 갑천로·갑천 서쪽
+return mapFrame('1', `
+${water('M 120,-400 L 600,-400 L 600,265 L 540,205 C 485,165 430,105 360,55 C 320,28 285,10 250,0 C 200,-25 160,-200 120,-400 Z', 468, 78, '갑천', 38)}
+${mRoad('M 40,-400 C 70,-150 95,-15 140,0 C 250,40 345,100 405,160 C 445,200 480,255 512,320 L 600,520')}
+${rLabel(262, 58, '갑천로', 30)}
+${mRoad('M -40,84 L 292,182 L 292,720')}
+${rLabel(62, 104, '테크노2로', 16)}
+${nRoad('M -40,286 L 600,286')}
+${rLabel(212, 280, '테크노10로', 0, 12.5)}
+${nRoad('M 128,134 L 128,720')}
+${rLabel(116, 212, '테크노중앙로', -90, 12)}
+${mark(150, 172, '대전세관')}
+${mark(310, 248, '건설생활환경시험연구원')}
+${mark(16, 30, '대덕테크노밸리')}
+${site('1', 306, 178, 50, 38, 331, 197, 136, 214, 152, '🏢 본사 · 제1공장')}
+`, 40, '100 m');
+} else if (key === 'p2') {
+// 제2공장: 갑천로 361-23 — 갑천로 동쪽, 탑립삼거리 북쪽 (하이플럭스 동일 부지)
+return mapFrame('2', `
+${water('M 525,-400 L 600,-400 L 600,720 L 360,720 C 390,560 405,420 418,320 C 440,250 470,140 498,0 C 508,-120 516,-260 525,-400 Z', 492, 210, '갑천', -78)}
+<path d="M 398,-400 L 398,720" stroke="rgba(255,255,255,0.35)" stroke-width="3" stroke-dasharray="10,6"/>
+${mark(406, 66, '철도')}
+${mRoad('M 340,-400 L 340,720')}
+${rLabel(326, 36, '갑천로', -90)}
+${mRoad('M -40,158 L 340,292 L 600,341')}
+${rLabel(120, 205, '배울1로', 19)}
+${nRoad('M 182,-400 L 182,236')}
+${rLabel(170, 168, '테크노2로', -90, 12.5)}
+${nRoad('M -40,86 L 340,86')}
+${rLabel(80, 80, '테크노11로', 0, 12.5)}
+<circle cx="340" cy="292" r="14" fill="none" stroke="#E5B842" stroke-width="2.5" stroke-dasharray="4,3"/>
+<text x="320" y="272" fill="#E5B842" font-size="13.5" font-weight="800" text-anchor="end">탑립삼거리</text>
+${mark(352, 222, '하이플럭스')}
+${site('2', 352, 160, 36, 46, 370, 183, 196, 116, 132, '🏭 제2공장')}
+`, 62, '100 m');
+} else {
+// 제3공장·기술연구소: 국제과학로 12 — 신동천·금남구즉로 남쪽, 국제과학로 서쪽
+return mapFrame('3', `
+${water('M -40,124 L 0,118 C 150,95 250,55 300,48 L 600,43 L 600,71 L 300,76 C 250,82 150,123 0,146 L -40,152 Z', 110, 120, '신동천', -12)}
+${mRoad('M -40,172 L 0,166 C 150,142 250,97 300,93 L 600,87')}
+${rLabel(470, 82, '금남구즉로', 0, 13)}
+${mRoad('M 395,-400 L 395,720')}
+${rLabel(381, 372, '국제과학로', -90)}
+${nRoad('M -40,238 L 600,238')}
+${rLabel(70, 232, '국제과학2로', 0, 12.5)}
+${rLabel(470, 232, '국제과학3로', 0, 12.5)}
+${mark(382, 24, 'IBS 중이온가속기연구소', 'end')}
+${mark(16, 300, '국제과학비즈니스벨트 신동지구')}
+${site('3', 292, 106, 88, 62, 336, 137, 70, 176, 196, '🔬 제3공장 · 기술연구소')}
+`, 54, '100 m');
+}
+}
+function nwNums(t) { return t.replace(/(\S*\d\S*)/g, '<span class="nw">$1</span>'); }
+function renderOfflineMapData(key) {
+const loc = LOCATION_MAPS[key];
+const isEn = currentLang === 'en';
+document.getElementById('offlineMapDataCol').innerHTML = `
+<div class="loc-name">${L(loc.name)}</div>
+<div><div class="loc-lbl">${isEn ? 'Address' : '주소'}</div>
+<div class="loc-road">${nwNums(L(loc.road))}</div>
+<div class="loc-jibun">${isEn ? 'Lot No.' : '지번'} · ${L(loc.jibun).replace(/^대전광역시 유성구 /, '').replace(/, Yuseong-gu, Daejeon/, '')}</div></div>
+<div><div class="loc-lbl">${isEn ? 'Main Line' : '대표 전화'}</div><div class="loc-road">042-931-6100</div></div>`;
+}
+function updateLocationDisplay() {
+const loc = LOCATION_MAPS[currentActiveLocKey];
+let svg = renderOfflineMapSVG(currentActiveLocKey);
+if (currentLang === 'en') Object.entries(MAP_LABEL_EN).sort((a, b) => b[0].length - a[0].length).forEach(([k, v]) => { svg = svg.split('>' + k + '<').join('>' + v + '<'); });
+document.getElementById('offlineMapCanvasCol').innerHTML = svg;
+renderOfflineMapData(currentActiveLocKey);
+const ifr = document.getElementById('contactMapIframe');
+ifr.dataset.src = loc.url + '&hl=' + currentLang;
+if (currentMapMode === 'online' && navigator.onLine) ifr.src = ifr.dataset.src;
+}
+function switchLocationMap(key, btn) {
+currentActiveLocKey = key;
+document.querySelectorAll('.addr-btn').forEach(b => b.classList.toggle('active', b === btn));
+updateLocationDisplay();
+}
+function setMapMode(mode) {
+currentMapMode = mode;
+document.getElementById('btnModeOffline').classList.toggle('active', mode === 'offline');
+document.getElementById('btnModeOnline').classList.toggle('active', mode === 'online');
+document.getElementById('offlineMapView').style.display = mode === 'offline' ? 'flex' : 'none';
+document.getElementById('onlineMapView').style.display = mode === 'online' ? 'block' : 'none';
+const ifr = document.getElementById('contactMapIframe');
+if (mode === 'online' && navigator.onLine && ifr.dataset.src && ifr.src !== ifr.dataset.src) ifr.src = ifr.dataset.src;
+checkOnlineStatus();
+}
+function checkOnlineStatus() {
+const f = document.querySelector('.map-mode-float');
+if (f) f.style.display = navigator.onLine ? 'flex' : 'none';
+if (!navigator.onLine && currentMapMode === 'online') setMapMode('offline');
+const fb = document.getElementById('mapOfflineFallback');
+if (fb) fb.style.display = (currentMapMode === 'online' && !navigator.onLine) ? 'flex' : 'none';
+}
+window.addEventListener('online', checkOnlineStatus);
+window.addEventListener('offline', checkOnlineStatus);
+/* =========================================================
+언어 전환
+========================================================= */
+function setLanguage(lang) {
+currentLang = lang;
+document.documentElement.lang = lang;
+try { localStorage.setItem('dsp_kiosk_lang', lang); } catch (e) {}
+document.title = lang === 'en'
+? 'Nano Disperser — High Pressure Homogenizer | ILSHINAUTOCLAVE'
+: 'Nano Disperser — 초고압 분산기 키오스크 | ㈜일신오토클레이브';
+document.getElementById('btnLangKo').classList.toggle('active', lang === 'ko');
+document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+document.querySelectorAll('[data-i18n]').forEach(el => {
+const v = I18N[lang][el.getAttribute('data-i18n')];
+if (typeof v === 'string') el.innerHTML = v;
+});
+renderAll();
+const active = document.querySelector('.nav-btn.active');
+if (active) document.getElementById('pageTitleDisplay').innerHTML = I18N[lang].page_title[active.dataset.target];
+}
+function renderAll() {
+renderChambers(); renderProcesses(); renderApp(); renderEquip(); renderVideoPills();
+updateSimulator(simPressure);
+updateLocationDisplay();
+}
+/* =========================================================
+시계 · 대기 초기화 · 화면 맞춤
+========================================================= */
+function updateClock() {
+const n = new Date();
+document.getElementById('liveClock').textContent = [n.getHours(), n.getMinutes(), n.getSeconds()].map(v => String(v).padStart(2, '0')).join(':');
+}
+setInterval(updateClock, 1000); updateClock();
+function resetKioskToHome() {
+closeModal();
+switchTechSegment('sim', document.querySelector('.segment-btn[data-seg="sim"]'));
+setChamber('z'); updateSimulator(1500);
+activeApp = 'cnt'; activeEquip = 1; activeVideo = 0;
+const cv = document.getElementById('cinemaVideo'); cv.pause(); cv.removeAttribute('src'); cv.load();
+switchLocationMap('hq', document.querySelector('.addr-btn[data-loc="hq"]'));
+setMapMode('offline');
+setLanguage('ko');
+switchNav('home');
+}
+function resetIdleTimer() {
+clearTimeout(idleTimer);
+idleTimer = setTimeout(resetKioskToHome, CONFIG.IDLE_TIMEOUT_MS);
+}
+['pointerdown', 'touchstart', 'click', 'input', 'keydown', 'wheel'].forEach(ev => window.addEventListener(ev, resetIdleTimer, { passive: true }));
+function fitKioskToScreen() {
+const ratioH = Math.round(1920 * window.innerHeight / window.innerWidth);
+const kioskH = Math.max(1080, Math.min(1200, ratioH));
+document.documentElement.style.setProperty('--kiosk-h', kioskH + 'px');
+const scale = Math.min(window.innerWidth / 1920, window.innerHeight / kioskH);
+document.getElementById('kiosk-scaler').style.transform = `scale(${scale})`;
+}
+window.addEventListener('resize', fitKioskToScreen);
+window.addEventListener('orientationchange', () => setTimeout(fitKioskToScreen, 150));
+fitKioskToScreen();
+window.addEventListener('DOMContentLoaded', () => {
+try {
+new QRCode(document.getElementById('qrContainer'), {
+text: CONFIG.QR_URL, width: 512, height: 512,
+colorDark: '#02060E', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.H
+});
+} catch (e) {}
+let saved = 'ko';
+try { saved = localStorage.getItem('dsp_kiosk_lang') || 'ko'; } catch (e) {}
+setLanguage(saved === 'en' ? 'en' : 'ko');
+fitKioskToScreen();
+checkOnlineStatus();
+resetIdleTimer();
+});
+</script>
+</body>
+</html>
