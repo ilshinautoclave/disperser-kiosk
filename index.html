@@ -1520,7 +1520,7 @@ const parts = [];
 let spawn = 0;
 const FONT = '"Pretendard Variable", Pretendard, "Noto Sans SC", sans-serif';
 function geo(W, H) {
-const pipeY = H * 0.58, tankW = W * 0.11, tankH = H * 0.44, tankTop = H * 0.11;
+const pipeY = H * 0.70, tankW = W * 0.11, tankH = H * 0.44, tankTop = H * 0.23;
 return {
 pipeY, tankW, tankH, tankTop,
 inX: W * 0.03, outX: W * 0.86,
@@ -1634,15 +1634,9 @@ ctx.strokeStyle = `rgba(141,235,255,${0.8 - k * 0.2})`; ctx.lineWidth = 3;
 ctx.beginPath(); ctx.moveTo(cx + off - 30, py - 6 + k * 6); ctx.lineTo(cx + off, py - 6 + k * 6); ctx.stroke();
 }
 ctx.fillStyle = '#8DEBFF'; ctx.font = `900 21px ${FONT}`;
-ctx.fillText(T3('노즐 챔버', 'Nozzle Chamber', '喷嘴腔室'), cx + cw / 2, py + 66);
+ctx.fillText(T3('노즐 챔버', 'Nozzle Chamber', '喷嘴腔室'), cx + cw / 2, py - 84);
 ctx.font = `700 16px ${FONT}`; ctx.fillStyle = 'rgba(255,255,255,0.75)';
-ctx.fillText('Impact · Shear · Cavitation', cx + cw / 2, py + 90);
-// 흐름 화살표 (빨간 점선)
-ctx.setLineDash([8, 10]); ctx.lineDashOffset = -t / 30;
-ctx.strokeStyle = 'rgba(255,120,100,0.75)'; ctx.lineWidth = 2.5;
-ctx.beginPath(); ctx.moveTo(g.inX - 6, g.tankTop + g.tankH * 0.6); ctx.lineTo(g.inX - 6, py + 34); ctx.lineTo(g.pumpX - 20, py + 34); ctx.stroke();
-ctx.beginPath(); ctx.moveTo(cx + cw + 20, py + 34); ctx.lineTo(g.outX + g.tankW + 8, py + 34); ctx.lineTo(g.outX + g.tankW + 8, g.tankTop + g.tankH * 0.6); ctx.stroke();
-ctx.setLineDash([]);
+ctx.fillText('Impact · Shear · Cavitation', cx + cw / 2, py - 58);
 ctx.textAlign = 'start';
 }
 requestAnimationFrame(draw);
