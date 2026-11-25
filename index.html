@@ -1109,12 +1109,10 @@ ctx.fillStyle = sg; roundRect(g.xa, bTop, g.xb - g.xa, bH, 18); ctx.fill();
 // 채널
 const glow = '120,190,255';
 const branches = isZ ? [0] : [0, 1];
-branches.forEach(br => {
-const pts = pathPts(br);
-const tr = () => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
-tr(); ctx.strokeStyle = '#041024'; ctx.lineWidth = 24; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt'; ctx.stroke();
-tr(); ctx.strokeStyle = `rgba(${glow},${0.25 + 0.7 * pN})`; ctx.lineWidth = 6; ctx.shadowColor = `rgb(${glow})`; ctx.shadowBlur = 18 * pN; ctx.stroke(); ctx.shadowBlur = 0;
-});
+const trace = (br) => { const pts = pathPts(br); ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
+// 어두운 통로를 먼저 모두 그린 뒤 빛나는 선을 그려, 분기점이 막혀 보이지 않게 함
+branches.forEach(br => { trace(br); ctx.strokeStyle = '#041024'; ctx.lineWidth = 24; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt'; ctx.stroke(); });
+branches.forEach(br => { trace(br); ctx.strokeStyle = `rgba(${glow},${0.25 + 0.7 * pN})`; ctx.lineWidth = 6; ctx.lineJoin = 'miter'; ctx.shadowColor = `rgb(${glow})`; ctx.shadowBlur = 18 * pN; ctx.stroke(); ctx.shadowBlur = 0; });
 // 충돌·전단 지점 강조
 { const pts = pathPts(0); const hx = pts[1][0], hy = isZ ? (pts[1][1] + pts[2][1]) / 2 : g.yc;
 ctx.beginPath(); ctx.arc(hx, hy, 8 + 16 * pN, 0, 6.28); ctx.fillStyle = `rgba(${glow},${0.12 + 0.35 * pN})`; ctx.fill(); }
