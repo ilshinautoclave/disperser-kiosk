@@ -441,6 +441,14 @@ html[lang="en"] .metric-card .lbl { font-size: 17px; }
 .video-box video { width: 100%; height: 100%; object-fit: contain; background: #000; }
 .video-caption { position: absolute; left: 24px; bottom: 22px; padding: 12px 20px; border-radius: 14px; background: rgba(2,8,20,0.8); border: 1px solid var(--border); font-size: 21px; font-weight: 700; color: var(--white-dim); max-width: 70%; }
 .modal-body.single { display: block; }
+.app-photo-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 16px; min-height: 0; }
+.ph-card { position: relative; border-radius: 22px; overflow: hidden; border: 1.5px solid var(--border); background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; padding: 18px 20px; }
+.ph-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(2,6,14,0) 35%, rgba(2,6,14,0.55) 62%, rgba(2,6,14,0.92) 100%); }
+.ph-card > * { position: relative; }
+.ph-card .n { font-size: 26px; font-weight: 900; display: flex; align-items: center; gap: 10px; }
+.ph-card .n .e { font-size: 28px; }
+.ph-card .s { margin-top: 4px; font-size: 19px; color: var(--white-dim); font-weight: 600; }
+.proc-photo { flex: 1; min-height: 0; margin: 16px 0 18px; border-radius: 18px; border: 1px solid var(--border); background-size: cover; background-position: center; }
 .equip-tile small { display: block; font-size: 15px; color: var(--white-muted); font-weight: 600; }
 .modal-window.wide { width: 1600px; }
 html[lang="en"] .home-hero-title { font-size: 70px; }
@@ -600,7 +608,7 @@ html[lang="en"] .home-hero-title { font-size: 70px; }
 <section class="panel" id="panel-app">
 <div class="app-tabs" id="appTabs"></div>
 <div class="app-split">
-<div class="app-photo glass" id="appPhoto"></div>
+<div class="app-photo-grid" id="appPhoto"></div>
 <div class="app-hero glass" id="appHero"></div>
 </div>
 </section>
@@ -933,7 +941,7 @@ document.getElementById('procGrid').innerHTML = PROC_DATA.map(p => `
 <div class="proc-card glass">
 <span class="why-badge" style="background:var(--cyan);color:#021022;">${L(p.badge)}</span>
 <h4 style="margin-top:14px;font-size:31px;font-weight:900;">${L(p.title)}</h4>
-<div class="why-svg" style="margin:16px 0 18px;">${processSVG(p.kind)}</div>
+<div class="proc-photo" style="background-image:url(assets/img/flow/proc_${p.kind}.jpg)"></div>
 <p style="font-size:23px;line-height:1.55;color:var(--white-dim);font-weight:500;">${L(p.desc).replace(/<b>/g, '<b style="color:var(--cyan-b)">')}</p>
 <div class="proc-tags">${L(p.tags).map(t => `<span>${t}</span>`).join('')}</div>
 </div>`).join('');
@@ -942,10 +950,10 @@ function renderApp() {
 document.getElementById('appTabs').innerHTML = APP_ORDER.map(k => `
 <button class="app-tab ${k === activeApp ? 'active' : ''}" onclick="switchApp('${k}')"><span class="e">${APP_DATA[k].e}</span><span>${L(APP_DATA[k].tab)}</span></button>`).join('');
 const a = APP_DATA[activeApp];
-const ph = document.getElementById('appPhoto');
-ph.style.backgroundImage = a.img ? `url('${a.img}')` : 'radial-gradient(600px 400px at 50% 35%, rgba(63,216,255,0.28), transparent 70%), radial-gradient(500px 300px at 20% 80%, rgba(155,135,255,0.25), transparent 70%), #071833';
-ph.innerHTML = `${a.img ? '' : `<div style="position:absolute;top:22%;left:0;right:0;text-align:center;font-size:150px;">${a.e}</div>`}
-<div class="ph-items">${a.items.map(i => `<div class="ph-item"><span class="e">${i.e}</span><div><div class="n">${L(i.n)}</div><div class="s">${L(i.s)}</div></div></div>`).join('')}</div>`;
+document.getElementById('appPhoto').innerHTML = a.items.map((it, i) => `
+<div class="ph-card" style="background-image:url(assets/img/flow/${activeApp}_${i + 1}.jpg)">
+<div class="n"><span class="e">${it.e}</span>${L(it.n)}</div><div class="s">${L(it.s)}</div>
+</div>`).join('');
 document.getElementById('appHero').innerHTML = `
 <h3>${L(a.title)}</h3>
 <p class="lead">${L(a.lead)}</p>
