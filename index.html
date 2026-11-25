@@ -1141,15 +1141,22 @@ if (p.x >= g.xa) p.s = 0;
 } else {
 const pts = pathPts(p.br), len = pathLen(pts);
 p.s += speedIn * 3.2;
+// Y Type: 가운데 분기점에서 하나의 입자가 둘로 나뉘어 위·아래로 갈라짐
+if (!isZ && !p.split && p.s >= pts[1][0] - pts[0][0]) {
+p.split = true; p.br = 0;
+ins.push({ x: p.x, y: p.y, s: p.s, br: 1, split: true, seed: p.seed + 500 });
+p.flash = 8;
+}
 if (p.s >= len) {
 const ey = pts[3][1];
-const k = Math.round(1 + 7 * d), rOut = R0 * (1 - 0.8 * d);
+const k = Math.round(1 + (p.split ? 4 : 7) * d), rOut = R0 * (p.split ? 0.8 : 1) * (1 - 0.8 * d);
 for (let j = 0; j < k; j++) outs.push({ x: g.xb + Math.random() * 6, y: ey + (Math.random() - .5) * 8, vx: 1.2 + speedIn * (0.8 + Math.random() * 0.6), vy: (Math.random() - .5) * (1.2 + 1.8 * pN), r: Math.max(2.2, rOut * (1 + (Math.random() - .5) * 1.1 * (1 - d))), seed: p.seed + j, cl: d < 0.35 });
 ins.splice(i, 1); continue;
 }
-const [x, y] = posAt(pts, p.s);
+const [x, y] = posAt(pathPts(p.br), p.s);
 const mix = Math.min(1, p.s / len);
-ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.28); ctx.fillStyle = mix < 0.5 ? IN_C : OUT_C; ctx.fill();
+if (p.flash) { ctx.beginPath(); ctx.arc(x, y, 10 + p.flash * 2, 0, 6.28); ctx.fillStyle = `rgba(255,190,120,${p.flash / 16})`; ctx.fill(); p.flash--; }
+ctx.beginPath(); ctx.arc(x, y, isZ ? 6 : (p.split ? 5 : 7.5), 0, 6.28); ctx.fillStyle = mix < 0.55 ? IN_C : OUT_C; ctx.fill();
 }
 }
 for (let i = outs.length - 1; i >= 0; i--) {
