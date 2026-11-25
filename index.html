@@ -397,6 +397,8 @@ html[lang="en"] .home-hero-title { font-size: 64px; letter-spacing: -1px; }
 html[lang="en"] .home-hero-desc { font-size: 24px; }
 html[lang="en"] .metric-card .lbl { font-size: 17px; }
 /* ===== DISPERSER EXTRA ===== */
+#panel-tech .sim-controls { grid-template-columns: 1fr; }
+.sim-canvas-wrap .chamber-toggle { position: absolute; right: 16px; top: 14px; width: 330px; height: 72px; z-index: 2; background: rgba(2,8,20,0.82); border-color: var(--border-bright); backdrop-filter: blur(6px); }
 .product-logo { display: block; width: 208px; height: auto; filter: drop-shadow(0 0 12px rgba(63,216,255,0.35)); }
 .sidebar-product .wip-full { margin-top: 10px; font-size: 12px; letter-spacing: 0.5px; white-space: nowrap; }
 .home-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -571,6 +573,10 @@ html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-br
 <div class="sim-canvas-wrap">
 <canvas id="simCanvas"></canvas>
 <div class="sim-legend" id="simLegend"></div>
+<div class="chamber-toggle">
+<button class="chamber-btn z active" id="btnZ" onclick="setChamber('z')" data-i18n="ch_z_btn">Z Type<br>분말·액상</button>
+<button class="chamber-btn y" id="btnY" onclick="setChamber('y')" data-i18n="ch_y_btn">Y Type<br>액상·액상</button>
+</div>
 </div>
 <div class="sim-controls">
 <div class="sim-presets">
@@ -578,10 +584,6 @@ html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-br
 <button class="preset-btn" onclick="setPresetPressure(500)"><span class="p">500 bar</span><span class="d" data-i18n="pre_1">거친 분산</span></button>
 <button class="preset-btn" onclick="setPresetPressure(1000)"><span class="p">1,000 bar</span><span class="d" data-i18n="pre_2">미립화 진행</span></button>
 <button class="preset-btn active" onclick="setPresetPressure(1500)"><span class="p">1,500 bar</span><span class="d" data-i18n="pre_3">나노 분산</span></button>
-</div>
-<div class="chamber-toggle">
-<button class="chamber-btn z active" id="btnZ" onclick="setChamber('z')" data-i18n="ch_z_btn">Z Type<br>분말·액상</button>
-<button class="chamber-btn y" id="btnY" onclick="setChamber('y')" data-i18n="ch_y_btn">Y Type<br>액상·액상</button>
 </div>
 </div>
 <div class="sim-slider-row">
