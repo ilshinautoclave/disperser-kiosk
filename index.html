@@ -399,7 +399,19 @@ html[lang="en"] .metric-card .lbl { font-size: 17px; }
 /* ===== DISPERSER EXTRA ===== */
 #panel-tech .sim-controls { grid-template-columns: 1fr; }
 .sim-canvas-wrap .chamber-toggle { position: absolute; right: 16px; top: 14px; width: 330px; height: 72px; z-index: 2; background: rgba(2,8,20,0.82); border-color: var(--border-bright); backdrop-filter: blur(6px); }
-.product-logo { display: block; width: 208px; height: auto; filter: drop-shadow(0 0 12px rgba(63,216,255,0.35)); }
+.top-product { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+.top-product .product-logo { display: block; height: 38px; width: auto; filter: drop-shadow(0 0 12px rgba(63,216,255,0.35)); }
+.top-product-sub { font-size: 12px; font-weight: 800; letter-spacing: 1.6px; color: var(--white-muted); white-space: nowrap; }
+.top-bar-divider { width: 2px; height: 46px; background: var(--border-bright); border-radius: 2px; margin: 0 6px; }
+/* 좌측 메뉴 크게 */
+#sidebar .sidebar-nav { padding: 20px 14px; gap: 14px; }
+#sidebar .nav-btn { height: 104px; gap: 18px; padding: 0 18px; }
+#sidebar .nav-btn .nav-ico { width: 58px; height: 58px; border-radius: 16px; }
+#sidebar .nav-btn .nav-ico svg { width: 32px; height: 32px; }
+#sidebar .nav-title { font-size: 29px; }
+#sidebar .nav-sub { font-size: 14px; letter-spacing: 1.2px; opacity: .7; }
+html[lang="en"] #sidebar .nav-title { font-size: 24px; }
+#sidebar .sidebar-footer { font-size: 14px; }
 .sidebar-product .wip-full { margin-top: 10px; font-size: 12px; letter-spacing: 0.5px; white-space: nowrap; }
 .home-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .home-overlay.dsp { background: linear-gradient(90deg, rgba(2,6,14,0.96) 0%, rgba(2,6,14,0.86) 45%, rgba(2,6,14,0.35) 75%, rgba(2,6,14,0.15) 100%); }
@@ -474,10 +486,6 @@ html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-br
 <div class="sidebar-logo-area">
 <img src="https://raw.githubusercontent.com/ilshinautoclave/ilshinautoclave/main/isalogo_w.png" alt="ILSHINAUTOCLAVE" decoding="async">
 </div>
-<div class="sidebar-product">
-<img class="product-logo" src="assets/img/nanodisperser-logo.svg" alt="Nano Disperser">
-<div class="wip-full">HIGH PRESSURE HOMOGENIZER</div>
-</div>
 <nav class="sidebar-nav">
 <button class="nav-btn active" data-target="home" onclick="switchNav('home')">
 <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg></span>
@@ -509,7 +517,11 @@ html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-br
 <main id="main-content">
 <header class="top-bar">
 <div class="top-bar-left">
-<span class="top-bar-brand-tag">ILSHINAUTOCLAVE</span>
+<div class="top-product">
+<img class="product-logo" src="assets/img/nanodisperser-logo.svg" alt="Nano Disperser">
+<span class="top-product-sub">HIGH PRESSURE HOMOGENIZER</span>
+</div>
+<span class="top-bar-divider"></span>
 <span class="top-bar-title" id="pageTitleDisplay">초고압 나노분산기</span>
 </div>
 <div class="top-bar-right">
