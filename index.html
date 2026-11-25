@@ -397,6 +397,19 @@ html[lang="en"] .home-hero-title { font-size: 64px; letter-spacing: -1px; }
 html[lang="en"] .home-hero-desc { font-size: 24px; }
 html[lang="en"] .metric-card .lbl { font-size: 17px; }
 /* ===== DISPERSER EXTRA ===== */
+.flow-wrap { width: 100%; display: flex; flex-direction: column; gap: 20px; min-height: 0; }
+.flow-diagram { flex: 1.05; min-height: 0; padding: 20px 26px 14px; display: flex; flex-direction: column; }
+.flow-head h3 { font-size: 30px; font-weight: 900; }
+.flow-head p { margin-top: 6px; font-size: 20px; color: var(--white-dim); font-weight: 600; }
+.flow-canvas-wrap { flex: 1; min-height: 0; margin-top: 8px; position: relative; }
+#flowCanvas, .force-canvas { width: 100%; height: 100%; display: block; }
+.force-row { flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.force-card { position: relative; padding: 18px 24px 20px; display: flex; flex-direction: column; min-height: 0; }
+.force-badge { position: absolute; right: 20px; top: 16px; font-size: 18px; font-weight: 900; color: var(--cyan); opacity: .8; letter-spacing: 1px; }
+.force-card h4 { font-size: 28px; font-weight: 900; }
+.force-card h4 span { margin-left: 8px; font-size: 20px; font-weight: 800; color: var(--cyan-b); }
+.force-canvas-wrap { flex: 1; min-height: 0; margin: 10px 0 12px; border-radius: 16px; overflow: hidden; background: #041024; border: 1px solid var(--border); }
+.force-card p { font-size: 20px; line-height: 1.5; color: var(--white-dim); font-weight: 500; }
 #panel-tech .sim-controls { grid-template-columns: 1fr; }
 .sim-canvas-wrap .chamber-toggle { position: absolute; right: 16px; top: 14px; width: 330px; height: 72px; z-index: 2; background: rgba(2,8,20,0.82); border-color: var(--border-bright); backdrop-filter: blur(6px); }
 .top-product { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
@@ -565,11 +578,43 @@ html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-br
 <!-- TECH -->
 <section class="panel" id="panel-tech">
 <div class="segment-bar">
-<button class="segment-btn active" data-seg="sim" onclick="switchTechSegment('sim', this)" data-i18n="seg_sim">⚡ 분산 시뮬레이터</button>
+<button class="segment-btn active" data-seg="flow" onclick="switchTechSegment('flow', this)" data-i18n="seg_flow">⚙️ 작동 원리</button>
+<button class="segment-btn" data-seg="sim" onclick="switchTechSegment('sim', this)" data-i18n="seg_sim">⚡ 분산 시뮬레이터</button>
 <button class="segment-btn" data-seg="ch" onclick="switchTechSegment('ch', this)" data-i18n="seg_ch">🔀 Z · Y 챔버 타입</button>
-<button class="segment-btn" data-seg="proc" onclick="switchTechSegment('proc', this)" data-i18n="seg_proc">🧪 3가지 공정</button>
+<button class="segment-btn" data-seg="proc" onclick="switchTechSegment('proc', this)" data-i18n="seg_proc">🧪 적용 공정</button>
 </div>
-<div class="subview active" id="sub-sim">
+<div class="subview active" id="sub-flow">
+<div class="flow-wrap">
+<div class="flow-diagram glass">
+<div class="flow-head">
+<h3 data-i18n="flow_title">작동 원리 — 고압 펌프에서 노즐 챔버까지</h3>
+<p data-i18n="flow_sub">시료가 고압 펌프로 가압되어 좁은 노즐 챔버를 통과하는 순간, 세 가지 힘이 동시에 작용해 입자를 나노 단위로 분산합니다.</p>
+</div>
+<div class="flow-canvas-wrap"><canvas id="flowCanvas"></canvas></div>
+</div>
+<div class="force-row">
+<div class="force-card glass">
+<div class="force-badge">01</div>
+<h4>Impact <span data-i18n="f1_k">충돌</span></h4>
+<div class="force-canvas-wrap"><canvas class="force-canvas" data-kind="impact"></canvas></div>
+<p data-i18n="f1_d">유체 속 입자가 관로 벽면에 부딪히고 입자끼리 충돌하며, 그 충격으로 미세하게 파쇄됩니다.</p>
+</div>
+<div class="force-card glass">
+<div class="force-badge">02</div>
+<h4>Shear force <span data-i18n="f2_k">전단력</span></h4>
+<div class="force-canvas-wrap"><canvas class="force-canvas" data-kind="shear"></canvas></div>
+<p data-i18n="f2_d">초음속으로 관로를 지나는 유체에 속도 차와 마찰이 생기며 전단력이 작용해, 입자나 액적이 끊어집니다.</p>
+</div>
+<div class="force-card glass">
+<div class="force-badge">03</div>
+<h4>Cavitation <span data-i18n="f3_k">공동 현상</span></h4>
+<div class="force-canvas-wrap"><canvas class="force-canvas" data-kind="cav"></canvas></div>
+<p data-i18n="f3_d">초고압으로 생긴 초음속 유체의 압력 차로 캐비테이션이 발생하고, 이때 유체의 분자 간 응집력이 파괴됩니다.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="subview" id="sub-sim">
 <div class="sim-layout">
 <div class="sim-main glass">
 <div class="sim-head">
@@ -752,7 +797,11 @@ home_desc: '압력을 이용해 <strong>분산·균질</strong>, <strong>에멀�
 m1_lbl: '사용 압력', m2_val: '0.1~8<small>L/min</small>', m2_lbl: '모델별 최대 유량', m3_lbl: '공정별 챔버 선택', m4_val: '5<small>종</small>', m4_lbl: 'Lab부터 양산까지 라인업',
 cred_1: '🧪 <b>분산·균질</b>', cred_2: '💧 <b>에멀전</b>', cred_3: '🦠 <b>세포벽 파괴</b>', cred_4: '🏭 식품 · 화장품 · 의약품 · 화학 · 전자 소재',
 home_cta_tech: '⚡ 분산 원리 체험하기', home_cta_video: '▶ 작동 영상 보기',
-seg_sim: '⚡ 분산 시뮬레이터', seg_ch: '🔀 Z · Y 챔버 타입', seg_proc: '🧪 3가지 공정',
+seg_flow: '⚙️ 작동 원리', seg_sim: '⚡ 분산 시뮬레이터', seg_ch: '🔀 Z · Y 챔버 타입', seg_proc: '🧪 적용 공정',
+flow_title: '작동 원리 — 고압 펌프에서 노즐 챔버까지', flow_sub: '시료가 고압 펌프로 가압되어 좁은 노즐 챔버를 통과하는 순간, 세 가지 힘이 동시에 작용해 입자를 나노 단위로 분산합니다.',
+f1_k: '충돌', f1_d: '유체 속 입자가 관로 벽면에 부딪히고 입자끼리 충돌하며, 그 충격으로 미세하게 파쇄됩니다.',
+f2_k: '전단력', f2_d: '초음속으로 관로를 지나는 유체에 속도 차와 마찰이 생기며 전단력이 작용해, 입자나 액적이 끊어집니다.',
+f3_k: '공동 현상', f3_d: '초고압으로 생긴 초음속 유체의 압력 차로 캐비테이션이 발생하고, 이때 유체의 분자 간 응집력이 파괴됩니다.',
 sim_title: '인터랙션 챔버 분산 시뮬레이터', sim_sub: '압력과 챔버 타입을 바꿔, 좁은 챔버를 지난 입자가 얼마나 잘게 나뉘는지 확인해 보세요.',
 pre_0: '투입 전', pre_1: '거친 분산', pre_2: '미립화 진행', pre_3: '나노 분산',
 ch_z_btn: 'Z Type<br>분말·액상', ch_y_btn: 'Y Type<br>액상·액상', sim_slider: '👆 압력 조절',
@@ -777,7 +826,11 @@ home_desc: 'A high pressure homogenizer for <strong>dispersion &amp; homogenizat
 m1_lbl: 'Operating pressure', m2_val: '0.1–8<small>L/min</small>', m2_lbl: 'Max. flow by model', m3_lbl: 'Chambers by process', m4_val: '5<small>models</small>', m4_lbl: 'From lab to production',
 cred_1: '🧪 <b>Dispersion</b>', cred_2: '💧 <b>Emulsion</b>', cred_3: '🦠 <b>Cell disruption</b>', cred_4: '🏭 Food · Cosmetics · Pharma · Chemicals · Electronics',
 home_cta_tech: '⚡ Try the Simulator', home_cta_video: '▶ Watch the Video',
-seg_sim: '⚡ Dispersion Simulator', seg_ch: '🔀 Z · Y Chambers', seg_proc: '🧪 3 Processes',
+seg_flow: '⚙️ How It Works', seg_sim: '⚡ Dispersion Simulator', seg_ch: '🔀 Z · Y Chambers', seg_proc: '🧪 Applied Processes',
+flow_title: 'How It Works — From High-Pressure Pump to Nozzle Chamber', flow_sub: 'As the sample is pressurized by the high-pressure pump and forced through the narrow nozzle chamber, three forces act at once to disperse particles to the nano scale.',
+f1_k: 'Collision', f1_d: 'Particles strike the channel walls and collide with each other, and the impact breaks them into fine fragments.',
+f2_k: 'Shear', f2_d: 'Fluid passing through the channel at supersonic speed meets velocity differences and friction; the resulting shear tears particles and droplets apart.',
+f3_k: 'Bubble collapse', f3_d: 'Pressure differences in the supersonic fluid trigger cavitation, which breaks the cohesive forces between molecules in the fluid.',
 sim_title: 'Interaction Chamber Simulator', sim_sub: 'Change pressure and chamber type to see how finely particles break up after the narrow chamber.',
 pre_0: 'Before feed', pre_1: 'Coarse', pre_2: 'Refining', pre_3: 'Nano dispersion',
 ch_z_btn: 'Z Type<br>Powder·Liquid', ch_y_btn: 'Y Type<br>Liquid·Liquid', sim_slider: '👆 Pressure',
@@ -802,7 +855,11 @@ home_desc: '利用压力实现<strong>分散·均质</strong>、<strong>乳化</
 m1_lbl: '使用压力', m2_val: '0.1~8<small>L/min</small>', m2_lbl: '各机型最大流量', m3_lbl: '按工艺选择腔室', m4_val: '5<small>款</small>', m4_lbl: '从实验室到量产',
 cred_1: '🧪 <b>分散·均质</b>', cred_2: '💧 <b>乳化</b>', cred_3: '🦠 <b>细胞破壁</b>', cred_4: '🏭 食品 · 化妆品 · 医药 · 化工 · 电子材料',
 home_cta_tech: '⚡ 体验分散原理', home_cta_video: '▶ 观看运行视频',
-seg_sim: '⚡ 分散模拟器', seg_ch: '🔀 Z · Y型腔室', seg_proc: '🧪 三大工艺',
+seg_flow: '⚙️ 工作原理', seg_sim: '⚡ 分散模拟器', seg_ch: '🔀 Z · Y型腔室', seg_proc: '🧪 应用工艺',
+flow_title: '工作原理 — 从高压泵到喷嘴腔室', flow_sub: '样品经高压泵加压,在通过狭窄喷嘴腔室的瞬间,三种力同时作用,将颗粒分散至纳米级。',
+f1_k: '撞击', f1_d: '流体中的颗粒撞击管路壁面并相互碰撞,在冲击作用下被细微破碎。',
+f2_k: '剪切力', f2_d: '以超音速通过管路的流体受速度差与摩擦等阻力影响产生剪切力,使颗粒或液滴被切断。',
+f3_k: '空化现象', f3_d: '超高压产生的超音速流体因压力差发生空化现象,从而破坏流体的分子间凝聚力。',
 sim_title: '交互腔室分散模拟器', sim_sub: '调整压力与腔室类型,观察颗粒通过狭窄腔室后被细化的程度。',
 pre_0: '投料前', pre_1: '粗分散', pre_2: '细化中', pre_3: '纳米分散',
 ch_z_btn: 'Z型<br>粉末·液体', ch_y_btn: 'Y型<br>液体·液体', sim_slider: '👆 压力调节',
@@ -1442,6 +1499,246 @@ hq: { name: { ko: '본사 · 제1공장', en: 'HQ &amp; Plant 1' }, road: { ko: 
 p2: { name: { ko: '제2공장', en: 'Plant 2' }, road: { ko: '대전광역시 유성구 갑천로 361-23, 25, 27', en: '361-23 Gapcheon-ro, Yuseong-gu, Daejeon', zh: '大田广域市 儒城区 甲川路 361-23, 25, 27' }, jibun: { ko: '대전광역시 유성구 탑립동 933-7', en: '933-7 Tamnip-dong, Yuseong-gu, Daejeon', zh: '塔立洞 933-7' }, url: 'https://maps.google.com/maps?q=36.412754,127.414825&t=&z=17&ie=UTF8&iwloc=&output=embed' },
 p3: { name: { ko: '제3공장 · 기술연구소', en: 'Plant 3 &amp; R&amp;D Center' }, road: { ko: '대전광역시 유성구 국제과학로 12', en: '12 Gukjekwahak-ro, Yuseong-gu, Daejeon', zh: '大田广域市 儒城区 国际科学路 12' }, jibun: { ko: '대전광역시 유성구 신동 657-5', en: '657-5 Sin-dong, Yuseong-gu, Daejeon', zh: '新洞 657-5' }, url: 'https://maps.google.com/maps?q=36.475429,127.367854&t=&z=17&ie=UTF8&iwloc=&output=embed' }
 };
+/* =========================================================
+작동 원리 — 흐름도 + 3가지 힘 애니메이션
+========================================================= */
+const FLOW_IN = '#C2553F', FLOW_OUT = '#4A8BE0';
+function fitCanvas(cv) {
+const w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
+if (w && h && (cv.width !== w || cv.height !== h)) { cv.width = w; cv.height = h; }
+return [cv.width, cv.height];
+}
+function flowActive() {
+return document.getElementById('panel-tech').classList.contains('active') && document.getElementById('sub-flow').classList.contains('active') && !document.hidden;
+}
+function rr(ctx, x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+// ---------- 흐름도 ----------
+(function () {
+const cv = document.getElementById('flowCanvas');
+const ctx = cv.getContext('2d');
+const parts = [];
+let spawn = 0;
+const FONT = '"Pretendard Variable", Pretendard, "Noto Sans SC", sans-serif';
+function geo(W, H) {
+const pipeY = H * 0.58, tankW = W * 0.11, tankH = H * 0.44, tankTop = H * 0.11;
+return {
+pipeY, tankW, tankH, tankTop,
+inX: W * 0.03, outX: W * 0.86,
+pumpX: W * 0.27, pumpW: W * 0.11,
+gaugeX: W * 0.47,
+chX: W * 0.60, chW: W * 0.15
+};
+}
+function pathPts(g) {
+const inC = g.inX + g.tankW / 2, outC = g.outX + g.tankW / 2, bot = g.tankTop + g.tankH;
+return [[inC, bot - 10], [inC, g.pipeY], [outC, g.pipeY], [outC, bot - 10]];
+}
+function posAt(pts, d) {
+for (let i = 1; i < pts.length; i++) {
+const a = pts[i - 1], b = pts[i], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+if (d <= l) return [a[0] + (b[0] - a[0]) * d / l, a[1] + (b[1] - a[1]) * d / l];
+d -= l;
+}
+return pts[pts.length - 1];
+}
+function pathLen(pts) { let l = 0; for (let i = 1; i < pts.length; i++) l += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return l; }
+function tank(x, y, w, h, fill, label, t, big) {
+// 비커
+ctx.fillStyle = 'rgba(255,255,255,0.06)'; rr(ctx, x, y, w, h, 16); ctx.fill();
+ctx.strokeStyle = 'rgba(200,220,240,0.6)'; ctx.lineWidth = 2.5; rr(ctx, x, y, w, h, 16); ctx.stroke();
+const ly = y + h * 0.28;
+const lg = ctx.createLinearGradient(0, ly, 0, y + h);
+lg.addColorStop(0, fill + 'cc'); lg.addColorStop(1, fill + '55');
+ctx.save(); rr(ctx, x + 3, ly, w - 6, y + h - ly - 3, 13); ctx.clip();
+ctx.fillStyle = lg; ctx.fillRect(x, ly, w, h);
+const R = rng(big ? 5 : 9);
+const n = big ? 9 : 46;
+for (let i = 0; i < n; i++) {
+const px = x + 14 + R() * (w - 28), py = ly + 12 + R() * (y + h - ly - 24) + Math.sin(t / 600 + i) * 3;
+ctx.beginPath(); ctx.arc(px, py, big ? 9 + R() * 4 : 2.6 + R() * 1.5, 0, 6.28);
+ctx.fillStyle = big ? '#E06A50' : '#8DC4FF'; ctx.fill();
+if (big) { ctx.strokeStyle = 'rgba(255,255,255,0.6)'; ctx.lineWidth = 1.5; ctx.stroke(); }
+}
+ctx.restore();
+ctx.font = `900 22px ${FONT}`; ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
+ctx.fillText(label, x + w / 2, y - 14);
+}
+function draw(t) {
+requestAnimationFrame(draw);
+if (!flowActive()) return;
+const [W, H] = fitCanvas(cv); if (!W) return;
+const g = geo(W, H), pts = pathPts(g), L = pathLen(pts);
+ctx.clearRect(0, 0, W, H);
+// 배관
+ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]));
+ctx.strokeStyle = '#2A3B57'; ctx.lineWidth = 30; ctx.stroke();
+ctx.strokeStyle = '#0B1A33'; ctx.lineWidth = 22; ctx.stroke();
+// 고압 구간 빛
+const hp = ctx.createLinearGradient(g.pumpX, 0, g.chX + g.chW, 0);
+hp.addColorStop(0, 'rgba(63,216,255,0)'); hp.addColorStop(1, 'rgba(63,216,255,0.35)');
+ctx.strokeStyle = hp; ctx.lineWidth = 10; ctx.beginPath(); ctx.moveTo(g.pumpX, g.pipeY); ctx.lineTo(g.chX + g.chW, g.pipeY); ctx.stroke();
+// 탱크
+tank(g.inX, g.tankTop, g.tankW, g.tankH, '#C2553F', 'Inlet', t, true);
+tank(g.outX, g.tankTop, g.tankW, g.tankH, '#2E6FC9', 'Outlet', t, false);
+// 입자 이동
+spawn += 1; if (spawn > 26) { spawn = 0; parts.push({ s: 0 }); }
+const chS = (g.chX - pts[0][0]) + (pts[1][1] - pts[0][1]);
+const chE = chS + g.chW;
+for (let i = parts.length - 1; i >= 0; i--) {
+const p = parts[i];
+const inHigh = p.s > (g.pumpX - pts[0][0]) + (pts[1][1] - pts[0][1]);
+p.s += inHigh ? 4.2 : 2.2;
+if (p.s > L) { parts.splice(i, 1); continue; }
+const [x, y] = posAt(pts, p.s);
+if (p.s < chE) {
+ctx.beginPath(); ctx.arc(x, y, 9, 0, 6.28); ctx.fillStyle = '#E06A50'; ctx.fill();
+ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 1.5; ctx.stroke();
+} else {
+for (let k = 0; k < 4; k++) { ctx.beginPath(); ctx.arc(x + (k % 2 ? 6 : -6), y + (k < 2 ? -5 : 5), 3.6, 0, 6.28); ctx.fillStyle = '#5FB7FF'; ctx.fill(); }
+}
+}
+// 고압 펌프
+const py = g.pipeY;
+const pg = ctx.createLinearGradient(0, py - 34, 0, py + 34);
+pg.addColorStop(0, '#5D6F8C'); pg.addColorStop(0.5, '#C9D6E8'); pg.addColorStop(1, '#46566F');
+ctx.fillStyle = pg; rr(ctx, g.pumpX, py - 32, g.pumpW, 64, 12); ctx.fill();
+ctx.fillStyle = 'rgba(2,8,20,0.35)';
+for (let k = 1; k < 5; k++) ctx.fillRect(g.pumpX + g.pumpW * k / 5 - 2, py - 32, 4, 64);
+ctx.font = `800 20px ${FONT}`; ctx.fillStyle = '#fff'; ctx.textAlign = 'center';
+ctx.fillText(T3('고압 펌프', 'High Pressure Pump', '高压泵'), g.pumpX + g.pumpW / 2, py - 46);
+// 압력계
+const gx = g.gaugeX, gy = py - 84, gr = 34;
+ctx.fillStyle = '#9FB1CA'; ctx.fillRect(gx - 7, gy + gr - 4, 14, py - gy - gr - 10);
+ctx.beginPath(); ctx.arc(gx, gy, gr + 5, 0, 6.28); ctx.fillStyle = '#6F829F'; ctx.fill();
+ctx.beginPath(); ctx.arc(gx, gy, gr, 0, 6.28); ctx.fillStyle = '#F2F6FB'; ctx.fill();
+for (let k = 0; k <= 10; k++) { const a = Math.PI * 0.75 + k * Math.PI * 1.5 / 10; ctx.beginPath(); ctx.moveTo(gx + Math.cos(a) * (gr - 4), gy + Math.sin(a) * (gr - 4)); ctx.lineTo(gx + Math.cos(a) * (gr - 11), gy + Math.sin(a) * (gr - 11)); ctx.strokeStyle = k > 7 ? '#E0443E' : '#334'; ctx.lineWidth = 2; ctx.stroke(); }
+const na = Math.PI * 0.75 + Math.PI * 1.5 * (0.82 + Math.sin(t / 420) * 0.04);
+ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx + Math.cos(na) * (gr - 8), gy + Math.sin(na) * (gr - 8)); ctx.strokeStyle = '#111'; ctx.lineWidth = 3; ctx.stroke();
+ctx.beginPath(); ctx.arc(gx, gy, 4, 0, 6.28); ctx.fillStyle = '#111'; ctx.fill();
+ctx.fillStyle = '#fff'; ctx.font = `800 20px ${FONT}`;
+ctx.fillText(T3('압력계', 'Pressure Gauge', '压力表'), gx, gy - gr - 16);
+// 노즐 챔버
+const cx = g.chX, cw = g.chW;
+const glowA = 0.45 + 0.25 * Math.sin(t / 260);
+ctx.save(); ctx.shadowColor = '#3FD8FF'; ctx.shadowBlur = 26;
+const cg = ctx.createLinearGradient(0, py - 40, 0, py + 40);
+cg.addColorStop(0, '#6F829F'); cg.addColorStop(0.5, '#E4ECF5'); cg.addColorStop(1, '#5D6F8C');
+ctx.fillStyle = cg; rr(ctx, cx, py - 38, cw * 0.48, 76, 16); ctx.fill(); rr(ctx, cx + cw * 0.52, py - 38, cw * 0.48, 76, 16); ctx.fill();
+ctx.restore();
+ctx.strokeStyle = `rgba(63,216,255,${glowA})`; ctx.lineWidth = 4; rr(ctx, cx - 4, py - 42, cw + 8, 84, 20); ctx.stroke();
+// 고속 제트 라인
+for (let k = 0; k < 3; k++) {
+const off = ((t / 6) + k * 30) % (cw + 40);
+ctx.strokeStyle = `rgba(141,235,255,${0.8 - k * 0.2})`; ctx.lineWidth = 3;
+ctx.beginPath(); ctx.moveTo(cx + off - 30, py - 6 + k * 6); ctx.lineTo(cx + off, py - 6 + k * 6); ctx.stroke();
+}
+ctx.fillStyle = '#8DEBFF'; ctx.font = `900 21px ${FONT}`;
+ctx.fillText(T3('노즐 챔버', 'Nozzle Chamber', '喷嘴腔室'), cx + cw / 2, py + 66);
+ctx.font = `700 16px ${FONT}`; ctx.fillStyle = 'rgba(255,255,255,0.75)';
+ctx.fillText('Impact · Shear · Cavitation', cx + cw / 2, py + 90);
+// 흐름 화살표 (빨간 점선)
+ctx.setLineDash([8, 10]); ctx.lineDashOffset = -t / 30;
+ctx.strokeStyle = 'rgba(255,120,100,0.75)'; ctx.lineWidth = 2.5;
+ctx.beginPath(); ctx.moveTo(g.inX - 6, g.tankTop + g.tankH * 0.6); ctx.lineTo(g.inX - 6, py + 34); ctx.lineTo(g.pumpX - 20, py + 34); ctx.stroke();
+ctx.beginPath(); ctx.moveTo(cx + cw + 20, py + 34); ctx.lineTo(g.outX + g.tankW + 8, py + 34); ctx.lineTo(g.outX + g.tankW + 8, g.tankTop + g.tankH * 0.6); ctx.stroke();
+ctx.setLineDash([]);
+ctx.textAlign = 'start';
+}
+requestAnimationFrame(draw);
+})();
+// ---------- 3가지 힘 ----------
+(function () {
+const cvs = [...document.querySelectorAll('.force-canvas')];
+const R = rng(42);
+const frag = Array.from({ length: 22 }, () => ({ a: R() * 6.28, v: 0.5 + R(), r: 2.2 + R() * 2.2, dy: (R() - .5) }));
+const ease = (x) => 1 - Math.pow(1 - x, 3);
+function draw(t) {
+requestAnimationFrame(draw);
+if (!flowActive()) return;
+for (const cv of cvs) {
+const ctx = cv.getContext('2d');
+const [W, H] = fitCanvas(cv); if (!W) continue;
+const kind = cv.dataset.kind;
+const cyc = (t % 3600) / 3600;
+const cy = H / 2;
+ctx.clearRect(0, 0, W, H);
+// 관로
+ctx.fillStyle = 'rgba(26,134,201,0.16)'; ctx.fillRect(0, cy - H * 0.32, W, H * 0.64);
+ctx.strokeStyle = 'rgba(141,235,255,0.35)'; ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo(0, cy - H * 0.32); ctx.lineTo(W, cy - H * 0.32); ctx.moveTo(0, cy + H * 0.32); ctx.lineTo(W, cy + H * 0.32); ctx.stroke();
+const R0 = Math.min(H * 0.17, 30);
+const hitT = 0.42;
+if (kind === 'impact') {
+const wallX = W * 0.8;
+ctx.fillStyle = '#9FB1CA'; ctx.fillRect(wallX, cy - H * 0.32, 14, H * 0.64);
+if (cyc < hitT) {
+const x = W * 0.12 + (wallX - R0 - W * 0.12) * ease(cyc / hitT);
+ctx.beginPath(); ctx.arc(x, cy, R0, 0, 6.28); ctx.fillStyle = FLOW_IN; ctx.fill();
+ctx.strokeStyle = 'rgba(255,120,100,0.6)'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x - R0 - 50, cy); ctx.lineTo(x - R0 - 10, cy); ctx.stroke();
+} else {
+const k = (cyc - hitT) / (1 - hitT), e = ease(Math.min(1, k * 1.4));
+if (k < 0.12) { ctx.beginPath(); ctx.arc(wallX - R0 * 0.6, cy, R0 * (1 + k * 6), 0, 6.28); ctx.fillStyle = `rgba(255,220,180,${0.5 - k * 4})`; ctx.fill(); }
+frag.forEach(f => {
+const ang = Math.PI + (f.a - 3.14) * 0.55;
+const x = wallX - R0 * 0.5 + Math.cos(ang) * f.v * W * 0.32 * e;
+const y = cy + Math.sin(ang) * f.v * H * 0.34 * e;
+ctx.beginPath(); ctx.arc(x, Math.max(cy - H * 0.3, Math.min(cy + H * 0.3, y)), f.r, 0, 6.28); ctx.fillStyle = FLOW_OUT; ctx.globalAlpha = 1 - Math.max(0, k - 0.75) * 4; ctx.fill(); ctx.globalAlpha = 1;
+});
+}
+} else if (kind === 'shear') {
+// 속도 분포 화살표 (가운데가 빠름)
+for (let i = -3; i <= 3; i++) {
+const y = cy + i * H * 0.085, len = W * (0.38 - Math.abs(i) * 0.09);
+const off = (t / (6 + Math.abs(i) * 4)) % W;
+ctx.strokeStyle = 'rgba(141,235,255,0.35)'; ctx.lineWidth = 2;
+ctx.beginPath(); ctx.moveTo((off) % W, y); ctx.lineTo((off) % W + len * 0.35, y); ctx.stroke();
+}
+if (cyc < hitT + 0.08) {
+const k = cyc / (hitT + 0.08);
+const x = W * 0.12 + W * 0.42 * k;
+const stretch = 1 + Math.max(0, k - 0.35) * 3.2;
+ctx.save(); ctx.translate(x, cy); ctx.scale(stretch, 1 / Math.sqrt(stretch));
+ctx.beginPath(); ctx.arc(0, 0, R0, 0, 6.28); ctx.fillStyle = FLOW_IN; ctx.fill(); ctx.restore();
+} else {
+const k = (cyc - hitT - 0.08) / (1 - hitT - 0.08);
+frag.forEach((f, i) => {
+const lane = ((i % 7) - 3) * H * 0.085;
+const speed = 1 - Math.abs((i % 7) - 3) * 0.22;
+const x = W * 0.54 + (i % 5 - 2) * 10 + k * W * 0.5 * speed;
+const y = cy + lane * Math.min(1, k * 3);
+ctx.beginPath(); ctx.arc(x, y, f.r, 0, 6.28); ctx.fillStyle = FLOW_OUT; ctx.globalAlpha = 1 - Math.max(0, k - 0.75) * 4; ctx.fill(); ctx.globalAlpha = 1;
+});
+}
+} else {
+const px = W * 0.5;
+if (cyc < hitT) {
+const k = cyc / hitT;
+const x = W * 0.15 + (px - W * 0.15) * ease(Math.min(1, k * 1.3));
+// 기포 생성·성장
+for (let i = 0; i < 6; i++) {
+const a = i * 1.047 + 0.3, d = R0 * 1.9;
+const br = Math.max(0, (k - 0.35)) * 22 * (0.7 + (i % 3) * 0.2);
+if (br > 0) { ctx.beginPath(); ctx.arc(x + Math.cos(a) * d, cy + Math.sin(a) * d, br, 0, 6.28); ctx.strokeStyle = 'rgba(200,240,255,0.85)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = 'rgba(200,240,255,0.12)'; ctx.fill(); }
+}
+ctx.beginPath(); ctx.arc(x, cy, R0, 0, 6.28); ctx.fillStyle = FLOW_IN; ctx.fill();
+} else {
+const k = (cyc - hitT) / (1 - hitT), e = ease(Math.min(1, k * 1.5));
+if (k < 0.18) { // 기포 붕괴 섬광
+ctx.beginPath(); ctx.arc(px, cy, R0 * 2.4 * (1 - k * 3), 0, 6.28); ctx.strokeStyle = `rgba(255,255,255,${0.9 - k * 4})`; ctx.lineWidth = 4; ctx.stroke();
+ctx.beginPath(); ctx.arc(px, cy, R0 * 1.2, 0, 6.28); ctx.fillStyle = `rgba(141,235,255,${0.5 - k * 2.5})`; ctx.fill();
+}
+frag.forEach(f => {
+const x = px + Math.cos(f.a) * f.v * W * 0.24 * e;
+const y = cy + Math.sin(f.a) * f.v * H * 0.28 * e;
+ctx.beginPath(); ctx.arc(x, y, f.r, 0, 6.28); ctx.fillStyle = FLOW_OUT; ctx.globalAlpha = 1 - Math.max(0, k - 0.75) * 4; ctx.fill(); ctx.globalAlpha = 1;
+});
+}
+}
+}
+}
+requestAnimationFrame(draw);
+})();
 // 영어 모드 약도 라벨 (긴 것부터 치환)
 const MAP_LABEL_EN = {
 '🏢 본사 · 제1공장': '🏢 HQ &amp; Plant 1',
@@ -1646,7 +1943,7 @@ document.getElementById('liveClock').textContent = [n.getHours(), n.getMinutes()
 setInterval(updateClock, 1000); updateClock();
 function resetKioskToHome() {
 closeModal();
-switchTechSegment('sim', document.querySelector('.segment-btn[data-seg="sim"]'));
+switchTechSegment('flow', document.querySelector('.segment-btn[data-seg="flow"]'));
 setChamber('z'); updateSimulator(1500);
 activeApp = 'cnt'; activeEquip = 1; activeVideo = 0;
 const cv = document.getElementById('cinemaVideo'); cv.pause(); cv.removeAttribute('src'); cv.load();
