@@ -460,6 +460,9 @@ html[lang="en"] .metric-card .lbl { font-size: 17px; }
 .equip-tiles.six .equip-tile .v { font-size: 20px; white-space: nowrap; letter-spacing: -0.3px; }
 .modal-window.wide { width: 1600px; }
 html[lang="en"] .home-hero-title { font-size: 70px; }
+html[lang="zh"] body, html[lang="zh"] button { font-family: "Pretendard Variable", "Pretendard", "Noto Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif; }
+html[lang="zh"] .home-hero-title { font-size: 76px; }
+html[lang="zh"] *, html[lang="zh"] *::before, html[lang="zh"] *::after { word-break: normal; line-break: strict; }
 </style>
 </head>
 <body>
@@ -512,6 +515,7 @@ html[lang="en"] .home-hero-title { font-size: 70px; }
 <div class="lang-switcher">
 <button class="lang-btn active" id="btnLangKo" onclick="setLanguage('ko')">KR</button>
 <button class="lang-btn" id="btnLangEn" onclick="setLanguage('en')">EN</button>
+<button class="lang-btn" id="btnLangZh" onclick="setLanguage('zh')">中文</button>
 </div>
 </div>
 </header>
@@ -716,7 +720,14 @@ IDLE_TIMEOUT_MS: 120000
 };
 let currentLang = 'ko';
 let idleTimer = null;
-const L = (o) => (o && typeof o === 'object') ? (o[currentLang] ?? o.ko) : o;
+const L = (o) => {
+if (!o || typeof o !== 'object') return o;
+if (currentLang === 'zh' && o.zh == null && o.ko != null) {
+if (Array.isArray(o.ko)) return o.ko.map(x => (typeof ZH !== 'undefined' && ZH[x]) || x);
+return (typeof ZH !== 'undefined' && ZH[o.ko]) || o.en || o.ko;
+}
+return o[currentLang] ?? o.ko;
+};
 function rng(seed) { let s = seed >>> 0; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 const I18N = {
 ko: {
@@ -768,6 +779,31 @@ map_off_t: 'Currently offline', map_off_d: 'Google Maps cannot be loaded.', map_
 qr_title: 'Product Details', qr_prompt: 'Scan with your phone camera<br>to open the <strong>homogenizer product page</strong>.',
 qr_p1: '⚡ Model selection &amp; quotation', qr_p2: '🔀 Chamber (Z · Y) consultation', qr_p3: '📞 Sales +82-42-602-8021',
 page_title: { home: 'Nano Disperser — High Pressure Homogenizer', tech: 'How It Works — Interaction Chamber', app: 'Applications', equip: 'Homogenizer Lineup', video: 'Chamber Operation Video', contact: 'Contact &amp; Location' }
+},
+zh: {
+nav_home: '首页', nav_tech: '分散原理', nav_app: '应用领域', nav_equip: '设备介绍', nav_video: '运行视频', nav_contact: '咨询',
+home_tag: '<span>●</span> 日新高压釜 · 超高压分散机 Nano Disperser',
+home_title: '1,500 bar之力,<br>让颗粒达到<span class="hl-cyan">纳米级</span><span class="hl-amber">均匀分散</span>',
+home_desc: '利用压力实现<strong>分散·均质</strong>、<strong>乳化</strong>与<strong>细胞破壁</strong>的高压均质机。从研究用小型设备到量产设备,均由日新高压釜(ILSHINAUTOCLAVE)自主设计制造。',
+m1_lbl: '使用压力', m2_val: '0.1~8<small>L/min</small>', m2_lbl: '各机型最大流量', m3_lbl: '按工艺选择腔室', m4_val: '5<small>款</small>', m4_lbl: '从实验室到量产',
+cred_1: '🧪 <b>分散·均质</b>', cred_2: '💧 <b>乳化</b>', cred_3: '🦠 <b>细胞破壁</b>', cred_4: '🏭 食品 · 化妆品 · 医药 · 化工 · 电子材料',
+home_cta_tech: '⚡ 体验分散原理', home_cta_video: '▶ 观看运行视频',
+seg_sim: '⚡ 分散模拟器', seg_ch: '🔀 Z · Y型腔室', seg_proc: '🧪 三大工艺',
+sim_title: '交互腔室分散模拟器', sim_sub: '调整压力与腔室类型,观察颗粒通过狭窄腔室后被细化的程度。',
+pre_0: '投料前', pre_1: '粗分散', pre_2: '细化中', pre_3: '纳米分散',
+ch_z_btn: 'Z型<br>粉末·液体', ch_y_btn: 'Y型<br>液体·液体', sim_slider: '👆 压力调节',
+hud_state_t: '🔬 出口样品状态', hud_size_t: '📏 颗粒 · 液滴尺寸', hud_uni_t: '📊 尺寸均匀度', hud_ch_t: '🔀 所选腔室',
+sc_small: '小', sc_big: '大', sc_uneven: '不均匀', sc_even: '均匀',
+sim_note: '※ 此为便于理解的概念演示,实际粒径与结果因样品及工艺条件而异。',
+eq_badge: 'Nano Disperser 产品阵容', eq_head: '从研究用小型设备到中试及大型量产设备 — 按工艺规模选择。',
+eq_hud_suffix: '主要参数', btn_spec: '📋 查看全部机型参数表',
+contact_title: '公司信息 · 交通指南', c_tel: '产品咨询 · 售后', c_tel_v: '产品咨询 +82-42-602-8021<br>售后 +82-42-602-8018',
+c_web: '官网', c_main: '总机 · 传真', c_biz: '业务领域', c_biz_v: '高压均质机 · HPP · CIP/WIP<br>高温高压设备设计制造',
+loc_hq: '总部 · 第一工厂', loc_p2: '第二工厂', loc_p3: '第三工厂 · 技术研究所',
+map_off_t: '当前处于离线状态', map_off_d: '无法加载谷歌地图。', map_mode_off: '简图', map_mode_on: '谷歌地图',
+qr_title: '查看产品详情', qr_prompt: '用手机相机扫描二维码,<br>即可打开<strong>高压均质机产品页面</strong>。',
+qr_p1: '⚡ 机型选择 · 定制报价', qr_p2: '🔀 按工艺选择腔室(Z·Y)咨询', qr_p3: '📞 产品咨询 +82-42-602-8021',
+page_title: { home: 'Nano Disperser 超高压纳米分散机', tech: '分散原理 — 交互腔室', app: '高压均质机应用领域', equip: '高压均质机产品阵容', video: '腔室运行视频', contact: '咨询 · 交通指南' }
 }
 };
 /* ===== 벡터 일러스트 ===== */
@@ -901,7 +937,7 @@ rows: [
 { k: { ko: '사용 압력', en: 'Operating pressure' }, v: ['1,500 bar', '1,500 bar', '1,500 bar', '1,500 bar', '1,500 bar'] },
 { k: { ko: '최대 유량', en: 'Max. flow rate' }, v: ['100 mL/min', '500 mL/min', '2 L/min', '4 L/min', '8 L/min'] },
 { k: { ko: '펌프 방식', en: 'Pump system' }, v: [{ ko: '모터 구동식<small>220VAC, 1PH, 60㎐</small>', en: 'Motor driven<small>220VAC, 1PH, 60Hz</small>' }, { ko: '유압 유닛<small>7.5 HP</small>', en: 'Hydraulic unit<small>7.5 HP</small>' }, { ko: '유압 유닛<small>30 HP</small>', en: 'Hydraulic unit<small>30 HP</small>' }, { ko: '유압 유닛<small>40 HP</small>', en: 'Hydraulic unit<small>40 HP</small>' }, { ko: '유압 유닛<small>50 HP</small>', en: 'Hydraulic unit<small>50 HP</small>' }] },
-{ k: { ko: '중량', en: 'Weight' }, v: ['약 45 kg', '약 600 kg', '1,200 kg', '2,000 kg', '2,500 kg'] },
+{ k: { ko: '중량', en: 'Weight' }, v: [{ ko: '약 45 kg', en: 'Approx. 45 kg', zh: '约 45 kg' }, { ko: '약 600 kg', en: 'Approx. 600 kg', zh: '约 600 kg' }, '1,200 kg', '2,000 kg', '2,500 kg'] },
 { k: { ko: '크기 (W×D×H, mm)', en: 'Size (W×D×H, mm)' }, v: ['583 × 576 × 435', '850 × 800 × 1,500', '2,350 × 1,000 × 2,100', '2,350 × 1,000 × 2,100', '3,100 × 1,100 × 2,100'] },
 { k: { ko: '챔버 크기', en: 'Chamber size' }, v: ['75 ㎛', '100 ㎛', '400 ㎛ / 100 ㎛', '400 ㎛ / 100 ㎛', '400 ㎛ / 100 ㎛'] },
 { k: { ko: '챔버 타입', en: 'Chamber type' }, v: ['Z Type', 'Z Type', 'Z / Y Type', 'Z / Y Type', 'Z / Y Type'] }
@@ -931,6 +967,143 @@ cap: { ko: 'NH 시리즈 내부: 시료가 Z Type · Y Type 챔버를 지나며 
 cap: { ko: '소형 장비: 시료 탱크의 시료가 Z Type 챔버를 통과하며 미립화되어 배출됩니다.', en: 'Lab unit: sample from the tank passes the Z Type chamber and exits micronized.' } }
 ];
 let activeVideo = 0;
+/* =========================================================
+中文 (简体) — 한국어 문구 → 중국어 대응표
+========================================================= */
+const ZH = {
+'Z Type 챔버': 'Z型腔室',
+'Z자로 직각으로 꺾이는 좁은 통로 · 분말을 액상에 분산·분쇄하는 Suspension 공정': 'Z字形直角弯折窄通道 · 将粉末分散、粉碎于液体中的悬浮(Suspension)工艺',
+'공정': '工艺',
+'Suspension (현탁 분산 · 분쇄)': 'Suspension(悬浮分散 · 粉碎)',
+'시료': '样品',
+'분말(Powder) → 액상': '粉末(Powder)→ 液体',
+'적용 소재': '适用材料',
+'CNT, Aluminum 등': 'CNT、铝等',
+'적용 모델': '适用机型',
+'전 모델 (NLM100 ~ NH8000)': '全系列(NLM100 ~ NH8000)',
+'Y Type 챔버': 'Y型腔室',
+'벽에 부딪혀 위·아래 두 갈래로 분기 · 액상과 액상을 분산하는 Emulsion 공정': '撞击腔壁后上下分流 · 液液分散的乳化(Emulsion)工艺',
+'Emulsion (유화)': 'Emulsion(乳化)',
+'액상 ↔ 액상': '液体 ↔ 液体',
+'적용 예': '应用示例',
+'우유, 물과 기름의 혼합': '牛奶、水与油的混合',
+'NH2000 · NH4000 · NH8000': 'NH2000 · NH4000 · NH8000',
+'분산 및 균질': '分散与均质',
+'뭉친 입자를 고르게': '让团聚颗粒均匀分散',
+'뭉쳐 있는 분말을 고압으로 좁은 챔버에 통과시켜 잘게 나누고, 액상 전체에 <b>균일하게 분산</b>합니다.': '以高压使团聚粉末通过狭窄腔室并细化,使其在整个液体中<b>均匀分散</b>。',
+'Z Type': 'Z型',
+'CNT · 금속 분말': 'CNT · 金属粉末',
+'안료 · 전자 소재': '颜料 · 电子材料',
+'에멀전': '乳化',
+'섞이지 않는 액체를 하나로': '让互不相溶的液体融为一体',
+'물과 기름처럼 섞이지 않는 액체의 액적을 <b>미세하게 쪼개 안정적인 에멀전</b>을 만듭니다. 화장품 원료·에멀젼 공정에 적용됩니다.': '将水与油等互不相溶液体的液滴<b>细化,形成稳定的乳液</b>。应用于化妆品原料及乳液工艺。',
+'Y Type': 'Y型',
+'화장품 에멀젼': '化妆品乳液',
+'리포좀 형성': '脂质体形成',
+'세포벽 파괴': '细胞破壁',
+'세포 속 성분을 꺼내다': '释放细胞内成分',
+'고압의 순간적인 전단력으로 <b>세포벽을 파괴</b>해 내부의 유용 성분을 추출합니다. 식품·의약품·바이오 공정에 활용됩니다.': '利用高压瞬间剪切力<b>破坏细胞壁</b>,提取内部有效成分。应用于食品、医药及生物工艺。',
+'미생물 · 세포': '微生物 · 细胞',
+'성분 추출': '成分提取',
+'의약품 · 바이오': '医药 · 生物',
+'CNT · 나노 분말': 'CNT · 纳米粉末',
+'🧬 CNT · 나노 분말 분산': '🧬 CNT · 纳米粉末分散',
+'서로 엉겨 붙기 쉬운 CNT와 같은 나노 분말을 액상에 고르게 풀어주는 Suspension 공정입니다. Z Type 챔버가 분말을 분산·분쇄합니다.': '将CNT等易缠结团聚的纳米粉末均匀分散于液体中的悬浮工艺。Z型腔室负责粉末的分散与粉碎。',
+'뭉친 나노 분말을 잘게 풀어 균일한 분산액 제조': '打散团聚的纳米粉末,制备均匀分散液',
+'Back Flushing으로 챔버 막힘 시 빠른 세척': '腔室堵塞时可通过反冲洗(Back Flushing)快速清洗',
+'1,500 bar 고압으로 반복 처리': '1,500 bar高压反复处理',
+'Suspension': 'Suspension(悬浮)',
+'사용 압력 1,500 bar': '使用压力 1,500 bar',
+'CNT 분산액': 'CNT分散液',
+'탄소나노튜브 분산': '碳纳米管分散',
+'금속 분말': '金属粉末',
+'Aluminum 등': '铝等',
+'전자 소재 슬러리': '电子材料浆料',
+'나노 소재 분산': '纳米材料分散',
+'탄소 소재': '碳材料',
+'나노 분말 분쇄': '纳米粉末粉碎',
+'전자 소재 · 화학': '电子材料 · 化工',
+'🔬 전자 소재 · 화학 · 안료': '🔬 电子材料 · 化工 · 颜料',
+'전자 소재, 화학, 안료·염료 산업에서 유화·분산·파쇄 공정에 쓰입니다. 스테인리스 스틸 재질로 화학 물질에 대한 내식성이 우수합니다.': '用于电子材料、化工、颜料与染料行业的乳化、分散、粉碎工艺。采用不锈钢材质,对化学品具有优异的耐腐蚀性。',
+'안료·염료 입자를 미세하고 균일하게': '使颜料、染料颗粒细微均匀',
+'스테인리스 스틸 재질로 우수한 내식성': '不锈钢材质,耐腐蚀性优异',
+'유압·냉각 시스템으로 장시간 연속 운전 (NH 시리즈)': '液压与冷却系统支持长时间连续运行(NH系列)',
+'유화 · 분산 · 파쇄': '乳化 · 分散 · 粉碎',
+'내식성 스테인리스': '耐腐蚀不锈钢',
+'연속 운전': '连续运行',
+'안료 · 염료': '颜料 · 染料',
+'색상 균일도 향상': '提升色彩均匀度',
+'전자 소재': '电子材料',
+'화학': '化工',
+'유화 · 분산 공정': '乳化 · 分散工艺',
+'연구 소재': '研究材料',
+'소형 장비로 시험': '小型设备试验',
+'화장품': '化妆品',
+'💄 화장품 원료 · 에멀젼': '💄 化妆品原料 · 乳液',
+'일신오토클레이브의 초고압 분산 기술은 화장품 원료 처리와 에멀젼 공정에 적용되고 있습니다. 미세하고 고른 액적으로 더 높은 품질의 화장품 생산에 기여합니다.': '日新高压釜(ILSHINAUTOCLAVE)的超高压分散技术已应用于化妆品原料处理与乳液工艺,以细微均匀的液滴助力生产更高品质的化妆品。',
+'물과 기름을 미세 액적으로 유화 (Y Type)': '将水与油乳化为细微液滴(Y型)',
+'리포좀(Liposome) 형성': '形成脂质体(Liposome)',
+'챔버 통과 후 열 영향을 최소화해 시료 손상 방지': '最大限度减少通过腔室后的热影响,防止样品受损',
+'리포좀': '脂质体',
+'크림 · 로션': '面霜 · 乳液',
+'에멀젼 공정': '乳液工艺',
+'나노 에멀전': '纳米乳液',
+'미세 액적 유화': '细微液滴乳化',
+'유효 성분 캡슐화': '有效成分包封',
+'기능성 원료': '功能性原料',
+'원료 미립화': '原料微粒化',
+'식품 · 의약품': '食品 · 医药',
+'🥛 식품 · 의약품 · 바이오': '🥛 食品 · 医药 · 生物',
+'유체의 세포 파괴, 미립화, 유화와 리포좀 형성으로 농도를 고르게 만드는 균질화 공정입니다. 식품과 의약품 산업 전반에 적용됩니다.': '通过流体的细胞破壁、微粒化、乳化及脂质体形成,使浓度均匀的均质化工艺。广泛应用于食品与医药行业。',
+'우유처럼 액상 간 균질화': '如牛奶般的液液均质化',
+'세포벽 파괴로 내부 성분 추출': '破壁提取细胞内成分',
+'의약품 리포좀 · 미립화': '药物脂质体 · 微粒化',
+'균질화': '均质化',
+'Lab ~ 양산': '实验室 ~ 量产',
+'유제품 · 음료': '乳制品 · 饮料',
+'의약품': '医药',
+'리포좀 · 미립화': '脂质体 · 微粒化',
+'식품 소재': '食品原料',
+'유화 · 분산': '乳化 · 分散',
+'사용 압력': '使用压力',
+'최대 유량': '最大流量',
+'펌프 방식': '泵类型',
+'모터 구동식<small>220VAC, 1PH, 60㎐</small>': '电机驱动<small>220VAC, 1PH, 60Hz</small>',
+'유압 유닛<small>7.5 HP</small>': '液压单元<small>7.5 HP</small>',
+'유압 유닛<small>30 HP</small>': '液压单元<small>30 HP</small>',
+'유압 유닛<small>40 HP</small>': '液压单元<small>40 HP</small>',
+'유압 유닛<small>50 HP</small>': '液压单元<small>50 HP</small>',
+'중량': '重量',
+'크기 (W×D×H, mm)': '尺寸(W×D×H, mm)',
+'챔버 크기': '腔室尺寸',
+'챔버 타입': '腔室类型',
+'소형 · Lab': '小型 · 实验室',
+'PCB 제어와 모터 속도 조절로 압력·유량을 맞추는 컴팩트 연구용 장비. 이동과 운반이 쉽습니다.': '采用PCB控制,通过调节电机转速设定压力与流量的紧凑型研究设备,便于移动和搬运。',
+'중형 · 파일럿': '中型 · 中试',
+'유압·냉각 시스템을 기본 적용해 장시간 연속 운전이 가능한 파일럿 라인용 장비. 스테인리스 스틸로 내식성 우수.': '标配液压与冷却系统,可长时间连续运行的中试线设备。不锈钢材质,耐腐蚀性优异。',
+'대형 · 양산': '大型 · 量产',
+'최대 8 L/min 대용량 양산 설비. NH2000 · NH4000 · NH8000 NH 시리즈로 생산 규모에 맞춰 선택합니다.': '最大8 L/min的大容量量产设备。可根据生产规模选择NH2000 · NH4000 · NH8000 NH系列。',
+'챔버 타입 선택': '腔室类型可选',
+'Z · Y Type': 'Z · Y型',
+'편리한 세척': '清洗便捷',
+'Back Flushing': '反冲洗系统',
+'시료 손상 방지': '防止样品受损',
+'챔버 후 열 영향 최소화': '腔室后热影响最小化',
+'안전 설계': '安全设计',
+'배관 외부 케이스': '管路外罩',
+'압력 정밀 조절': '压力精密调节',
+'유압 유닛 제어': '液压单元控制',
+'오픈형 물탱크': '开放式水箱',
+'사용량 확인 편리': '用量一目了然',
+'🏭 대형 양산형 — Z · Y 챔버 구조': '🏭 大型量产机 — Z · Y腔室结构',
+'NH 시리즈 내부: 시료가 Z Type · Y Type 챔버를 지나며 분산됩니다.': 'NH系列内部:样品通过Z型 · Y型腔室进行分散。',
+'🧪 소형 Lab — 시료 탱크 · Z 챔버': '🧪 小型实验室机 — 样品罐 · Z腔室',
+'소형 장비: 시료 탱크의 시료가 Z Type 챔버를 통과하며 미립화되어 배출됩니다.': '小型设备:样品罐中的样品通过Z型腔室微粒化后排出。',
+'본사 · 제1공장': '总部 · 第一工厂',
+'제2공장': '第二工厂',
+'제3공장 · 기술연구소': '第三工厂 · 技术研究所'
+};
+const T3 = (ko, en, zh) => currentLang === 'en' ? en : currentLang === 'zh' ? zh : ko;
 /* =========================================================
 렌더링
 ========================================================= */
@@ -998,11 +1171,11 @@ function openSpecModal() {
 const en = currentLang === 'en';
 const hi = EQUIP_DATA[activeEquip].col;
 const html = `<table class="spec-table">
-<thead><tr><th>${en ? 'Series' : '모델'}</th>${SPEC.cols.map((c, i) => `<th style="${i === hi ? 'color:#fff;background:rgba(63,216,255,0.3)' : ''}">${c}</th>`).join('')}</tr></thead>
+<thead><tr><th>${T3('모델', 'Series', '机型')}</th>${SPEC.cols.map((c, i) => `<th style="${i === hi ? 'color:#fff;background:rgba(63,216,255,0.3)' : ''}">${c}</th>`).join('')}</tr></thead>
 <tbody>${SPEC.rows.map((r, ri) => `<tr><td>${L(r.k)}</td>${r.v.map((v, i) => `<td class="${i === hi ? 'hl' : ''}">${L(v)}</td>`).join('')}</tr>`).join('')}</tbody>
 </table>
-<p class="spec-note">${en ? '※ Size and weight may vary by process and options. Hydraulic units: 220 / 380 / 440 VAC, 50 / 60 Hz.' : '※ 사이즈 및 무게는 공정·옵션에 따라 변경될 수 있습니다. 유압 유닛 전원: 220 / 380 / 440 VAC, 50 / 60 ㎐'}</p>`;
-openModal(en ? '📋 Nano Disperser — Full Specifications' : '📋 고압분산기 전체 모델 제원표', html, true);
+<p class="spec-note">${T3('※ 사이즈 및 무게는 공정·옵션에 따라 변경될 수 있습니다. 유압 유닛 전원: 220 / 380 / 440 VAC, 50 / 60 ㎐', '※ Size and weight may vary by process and options. Hydraulic units: 220 / 380 / 440 VAC, 50 / 60 Hz.', '※ 尺寸及重量可能因工艺和选配而变化。液压单元电源:220 / 380 / 440 VAC,50 / 60 Hz')}</p>`;
+openModal(T3('📋 고압분산기 전체 모델 제원표', '📋 Nano Disperser — Full Specifications', '📋 高压均质机全部机型参数表'), html, true);
 }
 function renderVideoPills() {
 document.getElementById('videoPills').innerHTML = VIDEO_DATA.map((v, i) =>
@@ -1171,14 +1344,14 @@ if (outs.length > 420) outs.splice(0, outs.length - 420);
 const en = currentLang === 'en';
 ctx.font = '800 19px "Pretendard Variable", Pretendard, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 ctx.fillStyle = 'rgba(255,255,255,0.8)';
-ctx.fillText(en ? 'Feed (inlet)' : '시료 투입', g.xa / 2, g.bot + 30);
-ctx.fillText(en ? 'Output (dispersed)' : '분산 배출', (g.xb + W) / 2, g.bot + 30);
+ctx.fillText(T3('시료 투입', 'Feed (inlet)', '样品投入'), g.xa / 2, g.bot + 30);
+ctx.fillText(T3('분산 배출', 'Output (dispersed)', '分散排出'), (g.xb + W) / 2, g.bot + 30);
 ctx.fillStyle = isZ ? '#FF8A8A' : '#FFCD7A';
 ctx.fillText(isZ ? 'Z-Type Interaction Chamber' : 'Y-Type Interaction Chamber', (g.xa + g.xb) / 2, bTop - 18);
 if (simPressure === 0) {
 ctx.fillStyle = 'rgba(2,8,20,0.75)'; roundRect(W / 2 - 170, g.yc - 30, 340, 60, 16); ctx.fill();
 ctx.fillStyle = '#fff'; ctx.font = '800 22px "Pretendard Variable", Pretendard, sans-serif';
-ctx.fillText(en ? 'Pump stopped — raise the pressure' : '펌프 정지 — 압력을 올려 보세요', W / 2, g.yc);
+ctx.fillText(T3('펌프 정지 — 압력을 올려 보세요', 'Pump stopped — raise the pressure', '泵已停止 — 请提高压力'), W / 2, g.yc);
 }
 ctx.textAlign = 'start';
 }
@@ -1193,15 +1366,18 @@ return { resize: () => { W = 0; resize(); }, clear: () => { ins = []; outs = [];
 const SIM_TEXT = {
 z: {
 ko: [['투입 전 · 뭉친 분말', '분말이 서로 뭉쳐 있어 액상에 고르게 퍼지지 않은 상태입니다.'], ['거친 분산', '덩어리가 일부 풀렸지만 큰 입자와 작은 입자가 섞여 있습니다.'], ['미립화 진행', '직각으로 꺾이는 좁은 통로의 강한 전단력으로 입자가 빠르게 작아집니다.'], ['나노 수준 분산', '뭉친 분말이 잘게 풀려 액상 전체에 고르게 분산됩니다.']],
+zh: [['团聚粉末', '粉末相互团聚,未能在液体中均匀分布。'], ['粗分散', '部分团块已打散,但大小颗粒混杂。'], ['细化中', '直角弯折窄通道的强剪切力使颗粒迅速变小。'], ['纳米级分散', '团聚粉末被充分打散,均匀分散于整个液体中。']],
 en: [['Agglomerated powder', 'Powder clumps together and is not spread through the liquid.'], ['Coarse dispersion', 'Some clumps break, but large and small particles are mixed.'], ['Refining', 'Strong shear in the narrow chamber rapidly shrinks particles.'], ['Nano-level dispersion', 'Agglomerates break down and disperse evenly through the liquid.']]
 },
 y: {
 ko: [['투입 전 · 분리된 액체', '물과 기름처럼 섞이지 않는 액체가 큰 방울로 나뉘어 있습니다.'], ['거친 유화', '액적이 작아지기 시작했지만 크기가 제각각입니다.'], ['미세 유화 진행', '흐름이 챔버 벽에 부딪혀 두 갈래로 갈라지며 액적이 빠르게 작아집니다.'], ['나노 에멀전', '작고 고른 액적으로 안정적인 에멀전이 만들어집니다.']],
+zh: [['分离的液体', '水与油等互不相溶的液体以大液滴形式分离存在。'], ['粗乳化', '液滴开始变小,但大小不一。'], ['细微乳化中', '液流撞击腔壁后分为上下两路,液滴迅速变小。'], ['纳米乳液', '形成细小均匀的液滴,得到稳定的乳液。']],
 en: [['Separated liquids', 'Immiscible liquids like water and oil sit as large droplets.'], ['Coarse emulsion', 'Droplets start shrinking but vary widely in size.'], ['Fine emulsifying', 'The flow hits the chamber wall and splits in two, shrinking droplets quickly.'], ['Nano emulsion', 'Small, even droplets form a stable emulsion.']]
 }
 };
 const CH_TEXT = {
 ko: { z: '<b style="color:#FF8A8A">Z Type</b> — 시료가 Z자로 직각으로 꺾이는 좁은 통로를 지나며 분산·분쇄되는 Suspension 공정. CNT, Aluminum 등에 적용됩니다.', y: '<b style="color:#FFCD7A">Y Type</b> — 시료가 챔버 벽에 부딪혀 위·아래 두 갈래로 나뉘며 분산되는 Emulsion 공정. 우유, 물과 기름 혼합에 적용됩니다.' },
+zh: { z: '<b style="color:#FF8A8A">Z型</b> — 样品通过Z字形直角弯折的窄通道进行分散、粉碎的悬浮工艺。适用于CNT、铝等。', y: '<b style="color:#FFCD7A">Y型</b> — 液流撞击腔壁后分为上下两路进行分散的乳化工艺。适用于牛奶、水与油的混合。' },
 en: { z: '<b style="color:#FF8A8A">Z Type</b> — Suspension: the sample passes a narrow Z-shaped right-angle path that disperses and mills powder. For CNT, aluminum and more.', y: '<b style="color:#FFCD7A">Y Type</b> — Emulsion: the flow hits the chamber wall and splits into upper and lower paths. For milk, water and oil.' }
 };
 function updateSimulator(val) {
@@ -1222,8 +1398,8 @@ document.getElementById('hudUniBar').style.width = Math.max(8, (0.1 + 0.85 * d) 
 document.getElementById('hudChDesc').innerHTML = CH_TEXT[currentLang][simChamber];
 const en = currentLang === 'en';
 document.getElementById('simLegend').innerHTML = simChamber === 'z'
-? `<span><i style="background:#C2553F"></i>${en ? 'Agglomerated powder (in)' : '뭉친 분말 (투입)'}</span><span><i style="background:#4A8BE0"></i>${en ? 'Dispersed particles (out)' : '분산된 입자 (배출)'}</span>`
-: `<span><i style="background:#C2553F"></i>${en ? 'Large droplets (in)' : '큰 액적 (투입)'}</span><span><i style="background:#4A8BE0"></i>${en ? 'Fine droplets (out)' : '미세 액적 (배출)'}</span>`;
+? `<span><i style="background:#C2553F"></i>${T3('뭉친 분말 (투입)', 'Agglomerated powder (in)', '团聚粉末(投入)')}</span><span><i style="background:#4A8BE0"></i>${T3('분산된 입자 (배출)', 'Dispersed particles (out)', '分散颗粒(排出)')}</span>`
+: `<span><i style="background:#C2553F"></i>${T3('큰 액적 (투입)', 'Large droplets (in)', '大液滴(投入)')}</span><span><i style="background:#4A8BE0"></i>${T3('미세 액적 (배출)', 'Fine droplets (out)', '细微液滴(排出)')}</span>`;
 document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick') === `setPresetPressure(${simPressure})`));
 }
 function setPresetPressure(v) { updateSimulator(v); }
@@ -1248,9 +1424,9 @@ v.addEventListener('ended', () => { try { v.currentTime = 0; } catch (e) {} v.pl
 let currentActiveLocKey = 'hq';
 let currentMapMode = 'offline';
 const LOCATION_MAPS = {
-hq: { name: { ko: '본사 · 제1공장', en: 'HQ &amp; Plant 1' }, road: { ko: '대전광역시 유성구 테크노2로 255', en: '255 Techno 2-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 탑립동 835', en: '835 Tamnip-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.419664,127.411491&t=&z=17&ie=UTF8&iwloc=&output=embed' },
-p2: { name: { ko: '제2공장', en: 'Plant 2' }, road: { ko: '대전광역시 유성구 갑천로 361-23, 25, 27', en: '361-23 Gapcheon-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 탑립동 933-7', en: '933-7 Tamnip-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.412754,127.414825&t=&z=17&ie=UTF8&iwloc=&output=embed' },
-p3: { name: { ko: '제3공장 · 기술연구소', en: 'Plant 3 &amp; R&amp;D Center' }, road: { ko: '대전광역시 유성구 국제과학로 12', en: '12 Gukjekwahak-ro, Yuseong-gu, Daejeon' }, jibun: { ko: '대전광역시 유성구 신동 657-5', en: '657-5 Sin-dong, Yuseong-gu, Daejeon' }, url: 'https://maps.google.com/maps?q=36.475429,127.367854&t=&z=17&ie=UTF8&iwloc=&output=embed' }
+hq: { name: { ko: '본사 · 제1공장', en: 'HQ &amp; Plant 1' }, road: { ko: '대전광역시 유성구 테크노2로 255', en: '255 Techno 2-ro, Yuseong-gu, Daejeon', zh: '大田广域市 儒城区 Techno 2路 255' }, jibun: { ko: '대전광역시 유성구 탑립동 835', en: '835 Tamnip-dong, Yuseong-gu, Daejeon', zh: '塔立洞 835' }, url: 'https://maps.google.com/maps?q=36.419664,127.411491&t=&z=17&ie=UTF8&iwloc=&output=embed' },
+p2: { name: { ko: '제2공장', en: 'Plant 2' }, road: { ko: '대전광역시 유성구 갑천로 361-23, 25, 27', en: '361-23 Gapcheon-ro, Yuseong-gu, Daejeon', zh: '大田广域市 儒城区 甲川路 361-23, 25, 27' }, jibun: { ko: '대전광역시 유성구 탑립동 933-7', en: '933-7 Tamnip-dong, Yuseong-gu, Daejeon', zh: '塔立洞 933-7' }, url: 'https://maps.google.com/maps?q=36.412754,127.414825&t=&z=17&ie=UTF8&iwloc=&output=embed' },
+p3: { name: { ko: '제3공장 · 기술연구소', en: 'Plant 3 &amp; R&amp;D Center' }, road: { ko: '대전광역시 유성구 국제과학로 12', en: '12 Gukjekwahak-ro, Yuseong-gu, Daejeon', zh: '大田广域市 儒城区 国际科学路 12' }, jibun: { ko: '대전광역시 유성구 신동 657-5', en: '657-5 Sin-dong, Yuseong-gu, Daejeon', zh: '新洞 657-5' }, url: 'https://maps.google.com/maps?q=36.475429,127.367854&t=&z=17&ie=UTF8&iwloc=&output=embed' }
 };
 // 영어 모드 약도 라벨 (긴 것부터 치환)
 const MAP_LABEL_EN = {
@@ -1383,15 +1559,15 @@ const loc = LOCATION_MAPS[key];
 const isEn = currentLang === 'en';
 document.getElementById('offlineMapDataCol').innerHTML = `
 <div class="loc-name">${L(loc.name)}</div>
-<div><div class="loc-lbl">${isEn ? 'Address' : '주소'}</div>
+<div><div class="loc-lbl">${T3('주소', 'Address', '地址')}</div>
 <div class="loc-road">${nwNums(L(loc.road))}</div>
-<div class="loc-jibun">${isEn ? 'Lot No.' : '지번'} · ${L(loc.jibun).replace(/^대전광역시 유성구 /, '').replace(/, Yuseong-gu, Daejeon/, '')}</div></div>
-<div><div class="loc-lbl">${isEn ? 'Main Line' : '대표 전화'}</div><div class="loc-road">042-931-6100</div></div>`;
+<div class="loc-jibun">${T3('지번', 'Lot No.', '地块')} · ${L(loc.jibun).replace(/^대전광역시 유성구 /, '').replace(/, Yuseong-gu, Daejeon/, '')}</div></div>
+<div><div class="loc-lbl">${T3('대표 전화', 'Main Line', '总机')}</div><div class="loc-road">042-931-6100</div></div>`;
 }
 function updateLocationDisplay() {
 const loc = LOCATION_MAPS[currentActiveLocKey];
 let svg = renderOfflineMapSVG(currentActiveLocKey);
-if (currentLang === 'en') Object.entries(MAP_LABEL_EN).sort((a, b) => b[0].length - a[0].length).forEach(([k, v]) => { svg = svg.split('>' + k + '<').join('>' + v + '<'); });
+if (currentLang !== 'ko') Object.entries(MAP_LABEL_EN).sort((a, b) => b[0].length - a[0].length).forEach(([k, v]) => { svg = svg.split('>' + k + '<').join('>' + v + '<'); });
 document.getElementById('offlineMapCanvasCol').innerHTML = svg;
 renderOfflineMapData(currentActiveLocKey);
 const ifr = document.getElementById('contactMapIframe');
@@ -1429,11 +1605,10 @@ function setLanguage(lang) {
 currentLang = lang;
 document.documentElement.lang = lang;
 try { localStorage.setItem('dsp_kiosk_lang', lang); } catch (e) {}
-document.title = lang === 'en'
-? 'Nano Disperser — High Pressure Homogenizer | ILSHINAUTOCLAVE'
-: 'Nano Disperser — 초고압 분산기 키오스크 | ㈜일신오토클레이브';
+document.title = T3('Nano Disperser — 초고압 분산기 키오스크 | ㈜일신오토클레이브', 'Nano Disperser — High Pressure Homogenizer | ILSHINAUTOCLAVE', 'Nano Disperser — 超高压纳米分散机 | 日新高压釜');
 document.getElementById('btnLangKo').classList.toggle('active', lang === 'ko');
 document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+document.getElementById('btnLangZh').classList.toggle('active', lang === 'zh');
 document.querySelectorAll('[data-i18n]').forEach(el => {
 const v = I18N[lang][el.getAttribute('data-i18n')];
 if (typeof v === 'string') el.innerHTML = v;
@@ -1490,7 +1665,7 @@ colorDark: '#02060E', colorLight: '#FFFFFF', correctLevel: QRCode.CorrectLevel.H
 } catch (e) {}
 let saved = 'ko';
 try { saved = localStorage.getItem('dsp_kiosk_lang') || 'ko'; } catch (e) {}
-setLanguage(saved === 'en' ? 'en' : 'ko');
+setLanguage(['en', 'zh'].includes(saved) ? saved : 'ko');
 fitKioskToScreen();
 setMapMode(navigator.onLine ? 'online' : 'offline');
 resetIdleTimer();
