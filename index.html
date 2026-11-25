@@ -761,33 +761,25 @@ for (let i = 0; i < 7; i++) { const a = R() * 6.28, d = R() * r * 0.55; s += `<c
 return s;
 }
 function chamberSVG(kind) {
-const steel = '#6F829F';
-if (kind === 'z') {
+const steel = '#6F829F', IN = '#C2553F', OUT = '#4A8BE0', GL = '#78BEFF';
 let inP = '', outP = '';
-[[40, 90], [70, 140], [45, 180], [85, 110]].forEach((p, i) => inP += clusterSVG(p[0], p[1], 20, '#8FA3C4', i + 3));
-const R = rng(9);
-for (let i = 0; i < 40; i++) outP += `<circle cx="${430 + R() * 120}" cy="${85 + R() * 110}" r="${3 + R() * 2}" fill="#8FA3C4"/>`;
+[[40, 90], [80, 140], [45, 180], [100, 100]].forEach((p, i) => inP += clusterSVG(p[0], p[1], 19, IN, i + 3));
+const R = rng(kind === 'z' ? 9 : 4);
+for (let i = 0; i < 45; i++) outP += `<circle cx="${430 + R() * 122}" cy="${72 + R() * 126}" r="${2.6 + R() * 2.2}" fill="${OUT}"/>`;
+const paths = kind === 'z'
+? ['M134 100 H275 V170 H416']
+: ['M134 135 H245 V82 H416', 'M245 135 V188 H416'];
+const label = kind === 'z' ? 'Nano Chamber (Z-Type)' : 'Nano Chamber (Y-Type)';
+const hit = kind === 'z' ? '<circle cx="275" cy="135" r="16" fill="#78BEFF" opacity=".35" class="heat"/>' : '<circle cx="245" cy="135" r="16" fill="#78BEFF" opacity=".35" class="heat"/>';
 return `<svg viewBox="0 0 580 270" xmlns="http://www.w3.org/2000/svg">
-<rect x="4" y="60" width="130" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${inP}
-<rect x="150" y="40" width="250" height="190" rx="18" fill="#1A2E4F" stroke="${steel}" stroke-width="6"/>
-<path d="M134 135 H180 L230 90 L280 180 L330 90 L370 135 H416" fill="none" stroke="#041024" stroke-width="16" stroke-linejoin="round"/>
-<path d="M134 135 H180 L230 90 L280 180 L330 90 L370 135 H416" fill="none" stroke="#FF6B6B" stroke-width="6" stroke-linejoin="round" class="ion-flow"/>
-<rect x="416" y="60" width="150" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${outP}
-<text x="275" y="30" text-anchor="middle" fill="#FF8A8A" font-size="20" font-weight="900" font-family="'Pretendard Variable',Pretendard,sans-serif">Z-Type Chamber</text>
-</svg>`;
-}
-let outP = '';
-const R = rng(4);
-for (let i = 0; i < 45; i++) outP += `<circle cx="${430 + R() * 120}" cy="${85 + R() * 110}" r="${2.5 + R() * 2.5}" fill="#FFB547"/>`;
-return `<svg viewBox="0 0 580 270" xmlns="http://www.w3.org/2000/svg">
-<rect x="4" y="60" width="130" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>
-<circle cx="40" cy="95" r="20" fill="#FFB547"/><circle cx="95" cy="120" r="24" fill="#FFB547"/><circle cx="50" cy="170" r="18" fill="#FFB547"/><circle cx="105" cy="180" r="14" fill="#FFB547"/>
-<rect x="150" y="40" width="250" height="190" rx="18" fill="#1A2E4F" stroke="${steel}" stroke-width="6"/>
-<path d="M134 135 H170 L250 80 H290 M170 135 L250 190 H290 M290 80 L330 135 M290 190 L330 135 H416" fill="none" stroke="#041024" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
-<path d="M134 135 H170 L250 80 H290 L330 135 M170 135 L250 190 H290 L330 135 H416" fill="none" stroke="#FFB547" stroke-width="6" stroke-linejoin="round" class="ion-flow"/>
-<circle cx="330" cy="135" r="16" fill="#FFB547" opacity=".35" class="heat"/>
-<rect x="416" y="60" width="150" height="150" rx="14" fill="rgba(26,134,201,.25)" stroke="#3FD8FF" stroke-width="2"/>${outP}
-<text x="275" y="30" text-anchor="middle" fill="#FFCD7A" font-size="20" font-weight="900" font-family="'Pretendard Variable',Pretendard,sans-serif">Y-Type Chamber</text>
+<rect x="4" y="60" width="130" height="150" rx="14" fill="rgba(26,134,201,.22)" stroke="#3FD8FF" stroke-width="2"/>${inP}
+<rect x="150" y="44" width="250" height="182" rx="16" fill="#9FB1CA" stroke="${steel}" stroke-width="5"/>
+<rect x="150" y="44" width="250" height="182" rx="16" fill="url(#none)" opacity="0"/>
+${paths.map(d => `<path d="${d}" fill="none" stroke="#041024" stroke-width="22" stroke-linejoin="miter"/>`).join('')}
+${paths.map(d => `<path d="${d}" fill="none" stroke="${GL}" stroke-width="6" stroke-linejoin="miter" class="ion-flow"/>`).join('')}
+${hit}
+<rect x="416" y="60" width="150" height="150" rx="14" fill="rgba(26,134,201,.22)" stroke="#3FD8FF" stroke-width="2"/>${outP}
+<text x="275" y="30" text-anchor="middle" fill="#fff" font-size="20" font-weight="900" font-family="'Pretendard Variable',Pretendard,sans-serif">${label}</text>
 </svg>`;
 }
 function processSVG(kind) {
@@ -810,14 +802,14 @@ return `<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg"><g transfo
 }
 /* ===== 콘텐츠 데이터 (출처: suflux.com 고압분산기 페이지) ===== */
 const CH_DATA = [
-{ kind: 'z', color: '#FF6B6B', icon: '🟥', title: { ko: 'Z Type 챔버', en: 'Z Type Chamber' }, sub: { ko: '분말을 액상에 분산·분쇄하는 Suspension 공정', en: 'Suspension — dispersing powder into liquid' },
+{ kind: 'z', color: '#FF6B6B', icon: '🟥', title: { ko: 'Z Type 챔버', en: 'Z Type Chamber' }, sub: { ko: 'Z자로 직각으로 꺾이는 좁은 통로 · 분말을 액상에 분산·분쇄하는 Suspension 공정', en: 'Narrow Z-shaped right-angle path · Suspension of powder in liquid' },
 items: [
 { k: { ko: '공정', en: 'Process' }, v: { ko: 'Suspension (현탁 분산 · 분쇄)', en: 'Suspension (dispersion &amp; milling)' } },
 { k: { ko: '시료', en: 'Sample' }, v: { ko: '분말(Powder) → 액상', en: 'Powder into liquid' } },
 { k: { ko: '적용 소재', en: 'Materials' }, v: { ko: 'CNT, Aluminum 등', en: 'CNT, aluminum and more' } },
 { k: { ko: '적용 모델', en: 'Models' }, v: { ko: '전 모델 (NLM100 ~ NH8000)', en: 'All models (NLM100 – NH8000)' } }
 ] },
-{ kind: 'y', color: '#FFB547', icon: '🟨', title: { ko: 'Y Type 챔버', en: 'Y Type Chamber' }, sub: { ko: '액상과 액상 사이를 분산·분쇄하는 Emulsion 공정', en: 'Emulsion — liquid-to-liquid dispersion' },
+{ kind: 'y', color: '#FFB547', icon: '🟨', title: { ko: 'Y Type 챔버', en: 'Y Type Chamber' }, sub: { ko: '벽에 부딪혀 위·아래 두 갈래로 분기 · 액상과 액상을 분산하는 Emulsion 공정', en: 'Flow hits a wall and splits in two · Liquid-to-liquid emulsion' },
 items: [
 { k: { ko: '공정', en: 'Process' }, v: { ko: 'Emulsion (유화)', en: 'Emulsion' } },
 { k: { ko: '시료', en: 'Sample' }, v: { ko: '액상 ↔ 액상', en: 'Liquid ↔ liquid' } },
@@ -1041,18 +1033,25 @@ const geo = () => {
 const yc = H * 0.56, ph = H * 0.46;
 return { yc, ph, xa: W * 0.33, xb: W * 0.63, top: yc - ph / 2, bot: yc + ph / 2 };
 };
-function chY(x, br) {
-const g = geo(); const t = (x - g.xa) / (g.xb - g.xa);
+// 챔버 통로 (Z: 직각으로 꺾여 내려가는 계단형 / Y: 벽에 부딪혀 위·아래 두 갈래로 분기)
+function pathPts(br) {
+const g = geo(); const L = g.xb - g.xa;
 if (simChamber === 'z') {
-const pts = [[0, 0], [0.15, 0], [0.35, -1], [0.55, 1], [0.75, -1], [0.88, 0], [1, 0]];
-for (let i = 1; i < pts.length; i++) if (t <= pts[i][0]) { const a = pts[i - 1], b = pts[i]; const u = (t - a[0]) / (b[0] - a[0]); return g.yc + (a[1] + (b[1] - a[1]) * u) * g.ph * 0.28; }
-return g.yc;
+const off = g.ph * 0.22, x1 = g.xa + L * 0.5;
+return [[g.xa, g.yc - off], [x1, g.yc - off], [x1, g.yc + off], [g.xb, g.yc + off]];
 }
-const s = br ? 1 : -1;
-if (t < 0.12) return g.yc + s * g.ph * 0.3 * (t / 0.12);
-if (t < 0.5) return g.yc + s * g.ph * 0.3;
-if (t < 0.7) return g.yc + s * g.ph * 0.3 * (1 - (t - 0.5) / 0.2);
-return g.yc;
+const off = g.ph * 0.27, x1 = g.xa + L * 0.4, sg = br ? 1 : -1;
+return [[g.xa, g.yc], [x1, g.yc], [x1, g.yc + sg * off], [g.xb, g.yc + sg * off]];
+}
+function pathLen(pts) { let l = 0; for (let i = 1; i < pts.length; i++) l += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); return l; }
+function posAt(pts, d0) {
+let d = d0;
+for (let i = 1; i < pts.length; i++) {
+const a = pts[i - 1], b = pts[i], l = Math.hypot(b[0] - a[0], b[1] - a[1]);
+if (d <= l) return [a[0] + (b[0] - a[0]) * d / l, a[1] + (b[1] - a[1]) * d / l];
+d -= l;
+}
+return pts[pts.length - 1];
 }
 function resize() {
 const w = cv.parentElement.clientWidth, h = cv.parentElement.clientHeight;
@@ -1076,7 +1075,7 @@ const g = geo(); const pN = simPressure / 1500;
 const target = Math.pow(pN, 0.8);
 d += (target - d) * 0.06;
 const isZ = simChamber === 'z';
-const pc = isZ ? '#8FA3C4' : '#FFB547';
+const IN_C = '#C2553F', OUT_C = '#4A8BE0', pc = OUT_C;
 const speedIn = simPressure > 0 ? 1.3 + 1.2 * pN : 0;
 ctx.fillStyle = '#041024'; ctx.fillRect(0, 0, W, H);
 // 배관 (유체)
@@ -1092,39 +1091,49 @@ const sg = ctx.createLinearGradient(0, bTop, 0, bTop + bH);
 sg.addColorStop(0, '#5D6F8C'); sg.addColorStop(0.5, '#9FB1CA'); sg.addColorStop(1, '#46566F');
 ctx.fillStyle = sg; roundRect(g.xa, bTop, g.xb - g.xa, bH, 18); ctx.fill();
 // 채널
-const chPath = (br) => { ctx.beginPath(); for (let x = g.xa; x <= g.xb; x += 3) { const y = chY(x, br); x === g.xa ? ctx.moveTo(x, y) : ctx.lineTo(x, y); } };
-const chCol = isZ ? '255,107,107' : '255,181,71';
-[0, 1].slice(0, isZ ? 1 : 2).forEach(br => {
-chPath(br); ctx.strokeStyle = '#041024'; ctx.lineWidth = 22; ctx.lineJoin = 'round'; ctx.stroke();
-chPath(br); ctx.strokeStyle = `rgba(${chCol},${0.25 + 0.7 * pN})`; ctx.lineWidth = 8; ctx.shadowColor = `rgb(${chCol})`; ctx.shadowBlur = 18 * pN; ctx.stroke(); ctx.shadowBlur = 0;
+const glow = '120,190,255';
+const branches = isZ ? [0] : [0, 1];
+branches.forEach(br => {
+const pts = pathPts(br);
+const tr = () => { ctx.beginPath(); pts.forEach((q, i) => i ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1])); };
+tr(); ctx.strokeStyle = '#041024'; ctx.lineWidth = 24; ctx.lineJoin = 'miter'; ctx.lineCap = 'butt'; ctx.stroke();
+tr(); ctx.strokeStyle = `rgba(${glow},${0.25 + 0.7 * pN})`; ctx.lineWidth = 6; ctx.shadowColor = `rgb(${glow})`; ctx.shadowBlur = 18 * pN; ctx.stroke(); ctx.shadowBlur = 0;
 });
-if (!isZ) { const cx = g.xa + (g.xb - g.xa) * 0.7; ctx.beginPath(); ctx.arc(cx, g.yc, 10 + 14 * pN, 0, 6.28); ctx.fillStyle = `rgba(255,181,71,${0.15 + 0.4 * pN})`; ctx.fill(); }
+// 충돌·전단 지점 강조
+{ const pts = pathPts(0); const hx = pts[1][0], hy = isZ ? (pts[1][1] + pts[2][1]) / 2 : g.yc;
+ctx.beginPath(); ctx.arc(hx, hy, 8 + 16 * pN, 0, 6.28); ctx.fillStyle = `rgba(${glow},${0.12 + 0.35 * pN})`; ctx.fill(); }
 // 출구 제트
 if (pN > 0) {
-const jg = ctx.createLinearGradient(g.xb, 0, g.xb + 260 * pN, 0);
-jg.addColorStop(0, `rgba(${chCol},${0.55 * pN})`); jg.addColorStop(1, `rgba(${chCol},0)`);
-ctx.fillStyle = jg; ctx.beginPath(); ctx.moveTo(g.xb, g.yc - 6); ctx.lineTo(g.xb + 260 * pN, g.yc - 60 * pN); ctx.lineTo(g.xb + 260 * pN, g.yc + 60 * pN); ctx.lineTo(g.xb, g.yc + 6); ctx.fill();
+branches.forEach(br => {
+const ey = pathPts(br)[3][1];
+const jg = ctx.createLinearGradient(g.xb, 0, g.xb + 240 * pN, 0);
+jg.addColorStop(0, `rgba(${glow},${0.5 * pN})`); jg.addColorStop(1, `rgba(${glow},0)`);
+ctx.fillStyle = jg; ctx.beginPath(); ctx.moveTo(g.xb, ey - 5); ctx.lineTo(g.xb + 240 * pN, ey - 46 * pN); ctx.lineTo(g.xb + 240 * pN, ey + 46 * pN); ctx.lineTo(g.xb, ey + 5); ctx.fill();
+});
 }
 // 입자 생성·이동
 if (speedIn > 0) { spawnT += speedIn; if (spawnT > 22) { spawnT = 0; if (ins.length < 40) spawn(); } }
 for (let i = ins.length - 1; i >= 0; i--) {
 const p = ins[i];
-if (p.x < g.xa - R0) {
+if (p.s === undefined) {
 p.x += speedIn;
-const ty = isZ ? g.yc : g.yc + (p.br ? 1 : -1) * g.ph * 0.3;
-if (p.x > g.xa - 150) p.y += (ty - p.y) * 0.06 * (speedIn > 0 ? 1 : 0);
-if (isZ) drawCluster(p.x, p.y, R0, p.seed, pc);
-else { ctx.beginPath(); ctx.arc(p.x, p.y, R0 * 0.9, 0, 6.28); ctx.fillStyle = pc; ctx.fill(); }
+const ty = pathPts(p.br)[0][1];
+if (p.x > g.xa - 170 && speedIn > 0) p.y += (ty - p.y) * 0.07;
+if (isZ) drawCluster(p.x, p.y, R0, p.seed, IN_C);
+else { ctx.beginPath(); ctx.arc(p.x, p.y, R0 * 0.9, 0, 6.28); ctx.fillStyle = IN_C; ctx.fill(); }
+if (p.x >= g.xa) p.s = 0;
 } else {
-p.x += speedIn * 3.2;
-if (p.x >= g.xb) {
-// 쪼개짐
+const pts = pathPts(p.br), len = pathLen(pts);
+p.s += speedIn * 3.2;
+if (p.s >= len) {
+const ey = pts[3][1];
 const k = Math.round(1 + 7 * d), rOut = R0 * (1 - 0.8 * d);
-for (let j = 0; j < k; j++) outs.push({ x: g.xb + Math.random() * 6, y: g.yc + (Math.random() - .5) * 8, vx: 1.2 + speedIn * (0.8 + Math.random() * 0.6), vy: (Math.random() - .5) * (1.2 + 1.8 * pN), r: Math.max(2.2, rOut * (1 + (Math.random() - .5) * 1.1 * (1 - d))), seed: p.seed + j, cl: d < 0.35 });
+for (let j = 0; j < k; j++) outs.push({ x: g.xb + Math.random() * 6, y: ey + (Math.random() - .5) * 8, vx: 1.2 + speedIn * (0.8 + Math.random() * 0.6), vy: (Math.random() - .5) * (1.2 + 1.8 * pN), r: Math.max(2.2, rOut * (1 + (Math.random() - .5) * 1.1 * (1 - d))), seed: p.seed + j, cl: d < 0.35 });
 ins.splice(i, 1); continue;
 }
-const y = chY(p.x, p.br);
-ctx.beginPath(); ctx.arc(p.x, y, 6, 0, 6.28); ctx.fillStyle = isZ ? '#C8D3E6' : '#FFD38A'; ctx.fill();
+const [x, y] = posAt(pts, p.s);
+const mix = Math.min(1, p.s / len);
+ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.28); ctx.fillStyle = mix < 0.5 ? IN_C : OUT_C; ctx.fill();
 }
 }
 for (let i = outs.length - 1; i >= 0; i--) {
@@ -1133,8 +1142,8 @@ o.x += o.vx * (speedIn > 0 ? 1 : 0.0); o.y += o.vy * (speedIn > 0 ? 1 : 0); o.vy
 if (o.y < g.top + o.r) { o.y = g.top + o.r; o.vy *= -0.5; }
 if (o.y > g.bot - o.r) { o.y = g.bot - o.r; o.vy *= -0.5; }
 if (o.x > W + 20) { outs.splice(i, 1); continue; }
-if (isZ && o.cl && o.r > 6) drawCluster(o.x, o.y, o.r, o.seed, pc);
-else { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, 6.28); ctx.fillStyle = pc; ctx.fill(); }
+if (o.cl && o.r > 6) drawCluster(o.x, o.y, o.r, o.seed, d < 0.2 ? IN_C : pc);
+else { ctx.beginPath(); ctx.arc(o.x, o.y, o.r, 0, 6.28); ctx.fillStyle = d < 0.2 ? IN_C : pc; ctx.fill(); }
 }
 if (outs.length > 420) outs.splice(0, outs.length - 420);
 // 라벨
@@ -1162,17 +1171,17 @@ return { resize: () => { W = 0; resize(); }, clear: () => { ins = []; outs = [];
 })();
 const SIM_TEXT = {
 z: {
-ko: [['투입 전 · 뭉친 분말', '분말이 서로 뭉쳐 있어 액상에 고르게 퍼지지 않은 상태입니다.'], ['거친 분산', '덩어리가 일부 풀렸지만 큰 입자와 작은 입자가 섞여 있습니다.'], ['미립화 진행', '좁은 챔버의 강한 전단력으로 입자가 빠르게 작아지고 있습니다.'], ['나노 수준 분산', '뭉친 분말이 잘게 풀려 액상 전체에 고르게 분산됩니다.']],
+ko: [['투입 전 · 뭉친 분말', '분말이 서로 뭉쳐 있어 액상에 고르게 퍼지지 않은 상태입니다.'], ['거친 분산', '덩어리가 일부 풀렸지만 큰 입자와 작은 입자가 섞여 있습니다.'], ['미립화 진행', '직각으로 꺾이는 좁은 통로의 강한 전단력으로 입자가 빠르게 작아집니다.'], ['나노 수준 분산', '뭉친 분말이 잘게 풀려 액상 전체에 고르게 분산됩니다.']],
 en: [['Agglomerated powder', 'Powder clumps together and is not spread through the liquid.'], ['Coarse dispersion', 'Some clumps break, but large and small particles are mixed.'], ['Refining', 'Strong shear in the narrow chamber rapidly shrinks particles.'], ['Nano-level dispersion', 'Agglomerates break down and disperse evenly through the liquid.']]
 },
 y: {
-ko: [['투입 전 · 분리된 액체', '물과 기름처럼 섞이지 않는 액체가 큰 방울로 나뉘어 있습니다.'], ['거친 유화', '액적이 작아지기 시작했지만 크기가 제각각입니다.'], ['미세 유화 진행', '두 흐름이 챔버에서 부딪히며 액적이 빠르게 작아집니다.'], ['나노 에멀전', '작고 고른 액적으로 안정적인 에멀전이 만들어집니다.']],
-en: [['Separated liquids', 'Immiscible liquids like water and oil sit as large droplets.'], ['Coarse emulsion', 'Droplets start shrinking but vary widely in size.'], ['Fine emulsifying', 'Two streams collide in the chamber and droplets shrink quickly.'], ['Nano emulsion', 'Small, even droplets form a stable emulsion.']]
+ko: [['투입 전 · 분리된 액체', '물과 기름처럼 섞이지 않는 액체가 큰 방울로 나뉘어 있습니다.'], ['거친 유화', '액적이 작아지기 시작했지만 크기가 제각각입니다.'], ['미세 유화 진행', '흐름이 챔버 벽에 부딪혀 두 갈래로 갈라지며 액적이 빠르게 작아집니다.'], ['나노 에멀전', '작고 고른 액적으로 안정적인 에멀전이 만들어집니다.']],
+en: [['Separated liquids', 'Immiscible liquids like water and oil sit as large droplets.'], ['Coarse emulsion', 'Droplets start shrinking but vary widely in size.'], ['Fine emulsifying', 'The flow hits the chamber wall and splits in two, shrinking droplets quickly.'], ['Nano emulsion', 'Small, even droplets form a stable emulsion.']]
 }
 };
 const CH_TEXT = {
-ko: { z: '<b style="color:#FF8A8A">Z Type</b> — 분말을 액상에 분산·분쇄하는 Suspension 공정. CNT, Aluminum 등에 적용됩니다.', y: '<b style="color:#FFCD7A">Y Type</b> — 두 흐름을 충돌시켜 액상끼리 분산하는 Emulsion 공정. 우유, 물과 기름 혼합에 적용됩니다.' },
-en: { z: '<b style="color:#FF8A8A">Z Type</b> — Suspension: disperses and mills powder into liquid. Used for CNT, aluminum and more.', y: '<b style="color:#FFCD7A">Y Type</b> — Emulsion: colliding streams disperse liquid into liquid, e.g. milk or water and oil.' }
+ko: { z: '<b style="color:#FF8A8A">Z Type</b> — 시료가 Z자로 직각으로 꺾이는 좁은 통로를 지나며 분산·분쇄되는 Suspension 공정. CNT, Aluminum 등에 적용됩니다.', y: '<b style="color:#FFCD7A">Y Type</b> — 시료가 챔버 벽에 부딪혀 위·아래 두 갈래로 나뉘며 분산되는 Emulsion 공정. 우유, 물과 기름 혼합에 적용됩니다.' },
+en: { z: '<b style="color:#FF8A8A">Z Type</b> — Suspension: the sample passes a narrow Z-shaped right-angle path that disperses and mills powder. For CNT, aluminum and more.', y: '<b style="color:#FFCD7A">Y Type</b> — Emulsion: the flow hits the chamber wall and splits into upper and lower paths. For milk, water and oil.' }
 };
 function updateSimulator(val) {
 simPressure = Number(val);
@@ -1192,8 +1201,8 @@ document.getElementById('hudUniBar').style.width = Math.max(8, (0.1 + 0.85 * d) 
 document.getElementById('hudChDesc').innerHTML = CH_TEXT[currentLang][simChamber];
 const en = currentLang === 'en';
 document.getElementById('simLegend').innerHTML = simChamber === 'z'
-? `<span><i style="background:#8FA3C4"></i>${en ? 'Powder (e.g. CNT)' : '분말 (CNT 등)'}</span><span><i style="background:#1A86C9"></i>${en ? 'Liquid' : '액상'}</span>`
-: `<span><i style="background:#FFB547"></i>${en ? 'Oil droplets' : '기름 액적'}</span><span><i style="background:#1A86C9"></i>${en ? 'Water phase' : '물 (연속상)'}</span>`;
+? `<span><i style="background:#C2553F"></i>${en ? 'Agglomerated powder (in)' : '뭉친 분말 (투입)'}</span><span><i style="background:#4A8BE0"></i>${en ? 'Dispersed particles (out)' : '분산된 입자 (배출)'}</span>`
+: `<span><i style="background:#C2553F"></i>${en ? 'Large droplets (in)' : '큰 액적 (투입)'}</span><span><i style="background:#4A8BE0"></i>${en ? 'Fine droplets (out)' : '미세 액적 (배출)'}</span>`;
 document.querySelectorAll('.preset-btn').forEach(b => b.classList.toggle('active', b.getAttribute('onclick') === `setPresetPressure(${simPressure})`));
 }
 function setPresetPressure(v) { updateSimulator(v); }
