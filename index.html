@@ -1637,7 +1637,7 @@ setChamber('z'); updateSimulator(1500);
 activeApp = 'cnt'; activeEquip = 1; activeVideo = 0;
 const cv = document.getElementById('cinemaVideo'); cv.pause(); cv.removeAttribute('src'); cv.load();
 switchLocationMap('hq', document.querySelector('.addr-btn[data-loc="hq"]'));
-setMapMode(navigator.onLine ? 'online' : 'offline');
+setMapMode('offline');
 setLanguage('ko');
 switchNav('home');
 }
@@ -1667,7 +1667,7 @@ let saved = 'ko';
 try { saved = localStorage.getItem('dsp_kiosk_lang') || 'ko'; } catch (e) {}
 setLanguage(['en', 'zh'].includes(saved) ? saved : 'ko');
 fitKioskToScreen();
-setMapMode(navigator.onLine ? 'online' : 'offline');
+setMapMode('offline');
 resetIdleTimer();
 });
 </script>
